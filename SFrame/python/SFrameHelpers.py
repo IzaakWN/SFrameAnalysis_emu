@@ -158,7 +158,7 @@ def CreateDataInput( files, output, tree, prefix, real_filenames ):
     tfile = ROOT.TFile.Open( file )
     if ( not tfile ) or ( not tfile.IsOpen() ):
       print "*ERROR* File \"" + file + "\" does not exist *ERROR*"
-      return 255
+      continue #return 255
 
     # Access a tree in the ntuple:
     collTree = tfile.Get( tree )

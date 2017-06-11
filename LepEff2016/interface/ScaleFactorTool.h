@@ -1,6 +1,7 @@
 #ifndef ScaleFactorTool_h
 #define ScaleFactorTool_h
 
+// include(s):
 #include "../interface/ScaleFactor.h"
 #include "TROOT.h"
 #include "TFile.h"
@@ -27,22 +28,24 @@ class ScaleFactorTool : public SToolBase {
     void BeginInputData( const SInputData& id ) throw( SError );
     
     // MUON
-    double get_Efficiency_MuTrig(double, double);
-    double get_ScaleFactor_MuId(double, double); 
-    double get_ScaleFactor_MuIdIso(double, double);
-    std::string m_Mu_TrigFile;
-    std::string m_Mu_IdIsoFile;
-    std::string m_Mu_IdFile;
-    std::string m_Mu_IsoFile;
+    double get_ScaleFactor_MuIdIso(       double pt, double eta );
+    std::string m_File_MuIdIso;
     
     // ELECTRON
-    double get_Efficiency_EleTrig(double, double);
-    double get_ScaleFactor_EleId(double, double);
-    double get_ScaleFactor_EleIdIso(double, double);
-    std::string m_Ele_TrigFile;
-    std::string m_Ele_IdIsoFile;
-    std::string m_Ele_IdFile;
-    std::string m_Ele_IsoFile;
+    double get_ScaleFactor_EleIdIso(       double pt, double eta );
+    std::string m_File_EleIdIso;
+    
+    // EMU
+    double get_Efficiency_EleMuTrig_MC(   double pt1, double eta1, double pt2, double eta2, std::string triggerFlags="em" );
+    double get_Efficiency_EleMuTrig_Data( double pt1, double eta1, double pt2, double eta2, std::string triggerFlags="em" );
+    double get_ScaleFactor_EleMuTrig(     double pt1, double eta1, double pt2, double eta2, std::string triggerFlags="em" );
+    double get_Efficiency_EleMuTrig_OR_MC(   double pt1, double eta1, double pt2, double eta2 );
+    double get_Efficiency_EleMuTrig_OR_Data( double pt1, double eta1, double pt2, double eta2 );
+    double get_ScaleFactor_EleMuTrig_OR(     double pt1, double eta1, double pt2, double eta2 );
+    std::string m_File_EleMuTrig_Ele12Leg;
+    std::string m_File_EleMuTrig_Ele23Leg;
+    std::string m_File_EleMuTrig_Mu8Leg;
+    std::string m_File_EleMuTrig_Mu23Leg;
     
     bool verbose = true;
     
@@ -51,14 +54,12 @@ class ScaleFactorTool : public SToolBase {
   private:
     
     std::string m_name;
-    ScaleFactor* m_ScaleFactor_MuTrig;
     ScaleFactor* m_ScaleFactor_MuIdIso;
-    ScaleFactor* m_ScaleFactor_MuId;
-    ScaleFactor* m_ScaleFactor_MuIso;
-    ScaleFactor* m_ScaleFactor_EleTrig;
+    ScaleFactor* m_ScaleFactor_EleMuTrig_Ele12Leg;
+    ScaleFactor* m_ScaleFactor_EleMuTrig_Ele23Leg;
+    ScaleFactor* m_ScaleFactor_EleMuTrig_Mu8Leg;
+    ScaleFactor* m_ScaleFactor_EleMuTrig_Mu23Leg;
     ScaleFactor* m_ScaleFactor_EleIdIso;
-    ScaleFactor* m_ScaleFactor_EleId;
-    ScaleFactor* m_ScaleFactor_EleIso;
     
     
     

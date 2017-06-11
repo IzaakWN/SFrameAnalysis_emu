@@ -1,7 +1,7 @@
 path2xml="$SFRAME_DIR/../BatchSubmission/xmls_Izaak"
 path2tmp="$SFRAME_DIR/../AnalysisTemp"
 jobName="signal"
-outDir="/scratch/$USER/SFrameAnalysis/AnalysisOutput/"+jobName #"$SFRAME_DIR/../AnalysisOutput/"+jobName
+outDir="/scratch/$USER/SFrameAnalysis/AnalysisOutputEM/"+jobName #"$SFRAME_DIR/../AnalysisOutput/"+jobName
 cycleName="TauTauAnalysis"
 nEventsMax=-1
 #nEventsMax=200
@@ -32,7 +32,7 @@ userItems = [
                 ["EESshift","0.00"],
              ]
 
-jobOptionsFile2=open("AnalysisOptions.py", 'r')
+jobOptionsFile2=open("AnalysisOptionsEM.py", 'r')
 command2=""
 for i in [o for o in jobOptionsFile2.readlines()]:
     if ("#E" + "nd") in i : break

@@ -9,7 +9,7 @@ nProcesses=1
 nFiles=1
 hCPU="03:30:00"
 hVMEM="5000M"
-postFix = ""
+postFix = "_Moriond"
 dataSets=[
   
   ["SUSYGluGluToHToTauTau_M-160",
@@ -18,12 +18,14 @@ dataSets=[
   ]
 
 userItems = [
-   ["IsData","false"],
-   ["IsSignal","true"],
-   ["doSVFit","true"],
-  ]
+               ["IsData","false"],
+               ["IsSignal","true"],
+               ["doSVFit","true"],
+               ["doEES","false"],
+               ["EESshift","0.00"],
+            ]
 
-jobOptionsFile2=open("AnalysisOptions.py", 'r')
+jobOptionsFile2=open("AnalysisOptionsEM.py", 'r')
 command2=""
 for i in [o for o in jobOptionsFile2.readlines()]:
   if ("#E" + "nd") in i : break
@@ -31,6 +33,3 @@ for i in [o for o in jobOptionsFile2.readlines()]:
 jobOptionsFile2.close()
 exec command2
 userItems += AddUserItems
-
-inputTrees=["ntuplizer/tree"]
-outputTrees=["tree"]
