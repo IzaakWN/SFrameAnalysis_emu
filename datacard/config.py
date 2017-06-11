@@ -3,130 +3,107 @@ from ROOT import TFile, TH1F
 from DisplayManager import DisplayManager
 from DataMCPlot import *
 
+gROOT.Macro('./functionmacro.C+') 
+
+#prefix = 'Summer2016'
+#prefix = 'ICHEP'
+prefix = 'Moriond'
+#tauidsf = 0.95
+tauidsf = 1.
+
 class config(object):
 
     def __init__(self, basedir, lumi, tes=None):
         
+        self.tes = tes
+
         self.basedir = basedir
 
         self.lumi = lumi
 
         self.hists = {}
 
-        self.baseline = 'dilepton_veto == 0 && extraelec_veto == 0 && extramuon_veto == 0 && againstElectronVLooseMVA6_2 == 1 && againstMuonTight3_2 == 1 && iso_1 < 0.15 && iso_2 == 1 && channel==1 && q_1*q_2 < 0'
-        
-        self.W_lowMT = 50.
-        self.W_highMT = 80.
-
-
-        self.sel_0jet_low = self.baseline + ' && ' + 'pt_2 > 20 && pt_2 < 50 && njets==0 && pfmt_1 < ' + str(self.W_lowMT)
-        self.sel_0jet_high = self.baseline + ' && ' + 'pt_2 > 50 && njets==0 && pfmt_1 < ' + str(self.W_lowMT)
-        self.sel_1jet_low = self.baseline + ' && ' + '(njets==1 || (njets==2 && vbf_mjj < 500)) && ((pt_2 > 30 && pt_2 < 40) || (pt_2 > 40 && pt_tt < 140)) && pfmt_1 < ' + str(self.W_lowMT)
-        self.sel_1jet_high = self.baseline + ' && ' + '(njets==1 || (njets==2 && vbf_mjj < 500)) && pt_2 > 40 && pt_tt > 140 && pfmt_1 < ' + str(self.W_lowMT)
-        self.sel_vbf_low = self.baseline + ' && ' + 'njets==2 && pt_2 > 20 && vbf_mjj > 500 && (vbf_mjj < 800 || pt_tt < 100) && pfmt_1 < ' + str(self.W_lowMT)
-        self.sel_vbf_high = self.baseline + ' && ' + 'njets==2 && pt_2 > 20 && vbf_mjj > 800 && pt_tt > 100 && pfmt_1 < ' + str(self.W_lowMT)
-
-
-        self.catdir = {
-            '0jet_low':{'name':'0jet_low', 'sel':self.sel_0jet_low, 'os_ss_ratio':1.},    
-            '0jet_high':{'name':'0jet_high', 'sel':self.sel_0jet_high, 'os_ss_ratio':1.},
-            '1jet_low':{'name':'1jet_low', 'sel':self.sel_1jet_low, 'os_ss_ratio':1.15},
-            '1jet_high':{'name':'1jet_hight', 'sel':self.sel_1jet_high, 'os_ss_ratio':1.15},
-            'vbf_low':{'name':'vbf_low', 'sel':self.sel_vbf_low, 'os_ss_ratio':1.2},
-            'vbf_high':{'name':'vbf_high', 'sel':self.sel_vbf_high, 'os_ss_ratio':1.2}
-            }
-
-
-
-
         self.process = {
 
-            'TTT':{'name':'TTT', 
-                   'file':self.basedir + '/TT/TauTauAnalysis.TT_TuneCUETP8M1_ICHEP.root',
-                   'additional_cut':'gen_match_2==5',
-                   'cross-section':831.76,
-                   'isSignal':0, 
-                   'order':1},
-
-            'TTJ':{'name':'TTJ', 
-                   'file':self.basedir + '/TT/TauTauAnalysis.TT_TuneCUETP8M1_ICHEP.root',
-                   'additional_cut':'gen_match_2!=5',
+            'TT':{'name':'TT', 
+                   'file':self.basedir + '/TT/TauTauAnalysis.TT_TuneCUETP8M1_' + prefix + '.root',
+                   'additional_cut':'1',
                    'cross-section':831.76,
                    'isSignal':0, 
                    'order':1},
 
 #            'ZTT10to50':{'name':'ZTT10to50', 
-#                         'file':self.basedir + '/DY/TauTauAnalysis.DYJetsToLL_M-10to50_TuneCUETP8M1_ICHEP.root', 
+#                         'file':self.basedir + '/DY/TauTauAnalysis.DYJetsToLL_M-10to50_TuneCUETP8M1_' + prefix + '.root', 
 #                         'additional_cut':'1',
 #                         'cross-section':18610.0,
 #                         'isSignal':0, 
 #                         'order':2},
 
             'ZTT':{'name':'ZTT', 
-                   'file':self.basedir + '/DY/TauTauAnalysis.DYJetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                   'file':self.basedir + '/DY/TauTauAnalysis.DYJetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                    'cross-section':1.,
                    'additional_cut':'gen_match_2==5',
                    'isSignal':0, 
                    'order':3},
 
             'ZTT1':{'name':'ZTT1', 
-                   'file':self.basedir + '/DY/TauTauAnalysis.DY1JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                   'file':self.basedir + '/DY/TauTauAnalysis.DY1JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                    'cross-section':1.,
                    'additional_cut':'gen_match_2==5',
                    'isSignal':0, 
                    'order':3},
 
             'ZTT2':{'name':'ZTT2', 
-                   'file':self.basedir + '/DY/TauTauAnalysis.DY2JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                   'file':self.basedir + '/DY/TauTauAnalysis.DY2JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                    'cross-section':1.,
                    'additional_cut':'gen_match_2==5',
                    'isSignal':0, 
                    'order':3},
 
             'ZTT3':{'name':'ZTT3', 
-                   'file':self.basedir + '/DY/TauTauAnalysis.DY3JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                   'file':self.basedir + '/DY/TauTauAnalysis.DY3JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                    'cross-section':1.,
                    'additional_cut':'gen_match_2==5',
                    'isSignal':0, 
                    'order':3},
 
             'ZTT4':{'name':'ZTT4', 
-                   'file':self.basedir + '/DY/TauTauAnalysis.DY4JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                   'file':self.basedir + '/DY/TauTauAnalysis.DY4JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                    'cross-section':1.,
                    'additional_cut':'gen_match_2==5',
                    'isSignal':0, 
                    'order':3},
 
             'ZL':{'name':'ZL', 
-                  'file':self.basedir + '/DY/TauTauAnalysis.DYJetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                  'file':self.basedir + '/DY/TauTauAnalysis.DYJetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                   'cross-section':1.,
                   'additional_cut':'gen_match_2<5',
                   'isSignal':0, 
                   'order':3},
 
             'ZL1':{'name':'ZL1', 
-                  'file':self.basedir + '/DY/TauTauAnalysis.DY1JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                  'file':self.basedir + '/DY/TauTauAnalysis.DY1JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                   'cross-section':1.,
                   'additional_cut':'gen_match_2<5',
                   'isSignal':0, 
                   'order':3},
 
             'ZL2':{'name':'ZL2', 
-                   'file':self.basedir + '/DY/TauTauAnalysis.DY2JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                   'file':self.basedir + '/DY/TauTauAnalysis.DY2JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                    'cross-section':1.,
                    'additional_cut':'gen_match_2<5',
                    'isSignal':0, 
                    'order':3},
 
             'ZL3':{'name':'ZL3', 
-                   'file':self.basedir + '/DY/TauTauAnalysis.DY3JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                   'file':self.basedir + '/DY/TauTauAnalysis.DY3JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                    'cross-section':1.,
                    'additional_cut':'gen_match_2<5',
                    'isSignal':0, 
                    'order':3},
 
             'ZL4':{'name':'ZL4', 
-                   'file':self.basedir + '/DY/TauTauAnalysis.DY4JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                   'file':self.basedir + '/DY/TauTauAnalysis.DY4JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                    'cross-section':1.,
                    'additional_cut':'gen_match_2<5',
                    'isSignal':0, 
@@ -134,105 +111,135 @@ class config(object):
 
 
             'ZJ':{'name':'ZJ', 
-                  'file':self.basedir + '/DY/TauTauAnalysis.DYJetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                  'file':self.basedir + '/DY/TauTauAnalysis.DYJetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                   'additional_cut':'gen_match_2==6',
                   'cross-section':1.,
                   'isSignal':0, 
                   'order':3},
 
             'ZJ1':{'name':'ZJ1', 
-                  'file':self.basedir + '/DY/TauTauAnalysis.DY1JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                  'file':self.basedir + '/DY/TauTauAnalysis.DY1JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                   'additional_cut':'gen_match_2==6',
                   'cross-section':1.,
                   'isSignal':0, 
                   'order':3},
 
             'ZJ2':{'name':'ZJ2', 
-                  'file':self.basedir + '/DY/TauTauAnalysis.DY2JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                  'file':self.basedir + '/DY/TauTauAnalysis.DY2JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                   'additional_cut':'gen_match_2==6',
                   'cross-section':1.,
                   'isSignal':0, 
                   'order':3},
 
             'ZJ3':{'name':'ZJ3', 
-                  'file':self.basedir + '/DY/TauTauAnalysis.DY3JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                  'file':self.basedir + '/DY/TauTauAnalysis.DY3JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                   'additional_cut':'gen_match_2==6',
                   'cross-section':1.,
                   'isSignal':0, 
                   'order':3},
 
             'ZJ4':{'name':'ZJ4', 
-                  'file':self.basedir + '/DY/TauTauAnalysis.DY4JetsToLL_M-50_TuneCUETP8M1_ICHEP.root',
+                  'file':self.basedir + '/DY/TauTauAnalysis.DY4JetsToLL_M-50_TuneCUETP8M1_' + prefix + '.root',
                   'additional_cut':'gen_match_2==6',
                   'cross-section':1.,
                   'isSignal':0, 
                   'order':3},
             
             'WWTo1L1Nu2Q':{'name':'WWTo1L1Nu2Q', 
-                           'file':self.basedir + '/WW/TauTauAnalysis.WWTo1L1Nu2Q_ICHEP.root',
-                           'cross-section':1.212,
+                           'file':self.basedir + '/WW/TauTauAnalysis.WWTo1L1Nu2Q_13TeV_nlo_' + prefix + '.root',
+                           'cross-section':49.997,
                            'additional_cut':'1',
                            'isSignal':0, 
                            'order':4},
-            
-            #    'WWTo4Q':{'name':'WWTo4Q', 
-            #              'file':self.basedir + '/WW/TauTauAnalysis.WWTo4Q_4f_ICHEP.root', 
-            #              'cross-section':22.82,
-            #              'additional_cut':'1',
-            #              'isSignal':0, 
-            #              'order':5},
-            
-            'WZ':{'name':'WZ', 
-                  'file':self.basedir + '/WZ/TauTauAnalysis.WZ_TuneCUETP8M1_ICHEP.root', 
-                  'cross-section':10.71,
-                  'additional_cut':'1',
-                  'isSignal':0, 
-                  'order':6},
-            
-            'ZZ':{'name':'ZZ', 
-                  'file':self.basedir + '/ZZ/TauTauAnalysis.ZZ_TuneCUETP8M1_ICHEP.root', 
-                  'cross-section':3.22,
+           
+           
+            'WZTo3LNu':{'name':'WZTo3LNu', 
+                        'file':self.basedir + '/WZ/TauTauAnalysis.WZTo3LNu_TuneCUETP8M1_13TeV_nlo_' + prefix + '.root', 
+                        'cross-section':3.05,
+                        'additional_cut':'1',
+                        'isSignal':0, 
+                        'order':6},
+
+            'WZTo2L2Q':{'name':'WZTo2L2Q', 
+                        'file':self.basedir + '/WZ/TauTauAnalysis.WZTo2L2Q_13TeV_nlo_' + prefix + '.root', 
+                        'cross-section':5.595,
+                        'additional_cut':'1',
+                        'isSignal':0, 
+                        'order':6},
+
+            'WZTo1L1Nu2Q':{'name':'WZTo1L1Nu2Q', 
+                           'file':self.basedir + '/WZ/TauTauAnalysis.WZTo1L1Nu2Q_13TeV_nlo_' + prefix + '.root', 
+                           'cross-section':10.71,
+                           'additional_cut':'1',
+                           'isSignal':0, 
+                           'order':6},
+           
+#            'ZZTo2Q2Nu':{'name':'ZZTo2Q2Nu', 
+#                  'file':self.basedir + '/ZZ/TauTauAnalysis.ZZTo2Q2Nu_13TeV_nlo_' + prefix + '.root', 
+#                  'cross-section':3.22,
+#                  'additional_cut':'1',
+#                  'isSignal':0, 
+#                  'order':7},
+
+            'ZZTo4L':{'name':'ZZTo4L', 
+                  'file':self.basedir + '/ZZ/TauTauAnalysis.ZZTo4L_13TeV_nlo_' + prefix + '.root', 
+                  'cross-section':1.212,
                   'additional_cut':'1',
                   'isSignal':0, 
                   'order':7},
+
+#            'ZZTo4Q':{'name':'ZZTo4Q', 
+#                  'file':self.basedir + '/ZZ/TauTauAnalysis.ZZTo4Q_13TeV_nlo_' + prefix + '.root', 
+#                  'cross-section':,
+#                  'additional_cut':'1',
+#                  'isSignal':0, 
+#                  'order':7},
+
+            'VVTo2L2Nu':{'name':'VVTo2L2Nu', 
+                      'file':self.basedir + '/ZZ/TauTauAnalysis.VVTo2L2Nu_13TeV_nlo_' + prefix + '.root', 
+                      'cross-section':11.95,
+                      'additional_cut':'1',
+                      'isSignal':0, 
+                      'order':7},
+
             
             'W':{'name':'W', 
-                 'file':self.basedir + 'WJ/TauTauAnalysis.WJetsToLNu_TuneCUETP8M1_ICHEP.root', 
+                 'file':self.basedir + 'WJ/TauTauAnalysis.WJetsToLNu_TuneCUETP8M1_' + prefix + '.root', 
                  'cross-section':1.,
                  'additional_cut':'1',
                  'isSignal':0, 
                  'order':8},
 
             'W1':{'name':'W1', 
-                 'file':self.basedir + 'WJ/TauTauAnalysis.W1JetsToLNu_TuneCUETP8M1_ICHEP.root', 
+                 'file':self.basedir + 'WJ/TauTauAnalysis.W1JetsToLNu_TuneCUETP8M1_' + prefix + '.root', 
                  'cross-section':1.,
                  'additional_cut':'1',
                  'isSignal':0, 
                  'order':8},
 
             'W2':{'name':'W2', 
-                 'file':self.basedir + 'WJ/TauTauAnalysis.W2JetsToLNu_TuneCUETP8M1_ICHEP.root', 
+                 'file':self.basedir + 'WJ/TauTauAnalysis.W2JetsToLNu_TuneCUETP8M1_' + prefix + '.root', 
                  'cross-section':1.,
                  'additional_cut':'1',
                  'isSignal':0, 
                  'order':8},
 
             'W3':{'name':'W3', 
-                 'file':self.basedir + 'WJ/TauTauAnalysis.W3JetsToLNu_TuneCUETP8M1_ICHEP.root', 
+                 'file':self.basedir + 'WJ/TauTauAnalysis.W3JetsToLNu_TuneCUETP8M1_' + prefix + '.root', 
                  'cross-section':1.,
                  'additional_cut':'1',
                  'isSignal':0, 
                  'order':8},
 
             'W4':{'name':'W4', 
-                 'file':self.basedir + 'WJ/TauTauAnalysis.W4JetsToLNu_TuneCUETP8M1_ICHEP.root', 
+                 'file':self.basedir + 'WJ/TauTauAnalysis.W4JetsToLNu_TuneCUETP8M1_' + prefix + '.root', 
                  'cross-section':1.,
                  'additional_cut':'1',
                  'isSignal':0, 
                  'order':8},
     
             'ST_t_top':{'name':'ST_t_top', 
-                        'file':self.basedir + 'ST/TauTauAnalysis.ST_t-channel_top_4f_leptonDecays_ICHEP.root', 
+                        'file':self.basedir + 'ST/TauTauAnalysis.ST_t-channel_top_4f_inclusiveDecays_' + prefix + '.root', 
                         'cross-section':136.02,
                         'additional_cut':'1',
                         'isSignal':0, 
@@ -240,7 +247,7 @@ class config(object):
             
             
             'ST_t_antitop':{'name':'ST_t_antitop', 
-                            'file':self.basedir + 'ST/TauTauAnalysis.ST_t-channel_antitop_4f_leptonDecays_ICHEP.root', 
+                            'file':self.basedir + 'ST/TauTauAnalysis.ST_t-channel_antitop_4f_inclusiveDecays_' + prefix + '.root', 
                             'cross-section':80.95,
                             'additional_cut':'1',
                             'isSignal':0, 
@@ -248,27 +255,28 @@ class config(object):
             
             
             'ST_tw_top':{'name':'ST_tw_top', 
-                         'file':self.basedir + 'ST/TauTauAnalysis.ST_tW_top_5f_inclusiveDecays_ICHEP.root', 
+                         'file':self.basedir + 'ST/TauTauAnalysis.ST_tW_top_5f_inclusiveDecays_' + prefix + '.root', 
                          'cross-section':35.60,
                          'additional_cut':'1',
                          'isSignal':0, 
                          'order':11},
             
             'ST_tw_antitop':{'name':'ST_tw_antitop', 
-                             'file':self.basedir + 'ST/TauTauAnalysis.ST_tW_antitop_5f_inclusiveDecays_ICHEP.root', 
+                             'file':self.basedir + 'ST/TauTauAnalysis.ST_tW_antitop_5f_inclusiveDecays_' + prefix + '.root', 
                              'cross-section':35.60,
                              'additional_cut':'1',
                              'isSignal':0, 
                              'order':12},
             
-            #    'Signal':{'name':'Signal', 
-            #              'file':self.basedir + 'signal/TauTauAnalysis.LowMass_30GeV_DiTauResonance_ICHEP.root', 
-            #              'cross-section':1.,
-            #              'isSignal':1, 
-            #              'order':3000},
+            'Signal':{'name':'Signal', 
+                      'file':self.basedir + 'LowMass/TauTauAnalysis.LowMass_30GeV_DiTauResonance_' + prefix + '.root', 
+                      'cross-section':30.,
+                      'additional_cut':'1',
+                      'isSignal':3000, 
+                      'order':4},
             
             'data_obs':{'name':'data_obs', 
-                        'file':self.basedir + 'SingleMuon/TauTauAnalysis.SingleMuon_Run2016_ICHEP.root',
+                        'file':self.basedir + 'MuonEG/TauTauAnalysis.MuonEG_Run2016_' + prefix + '.root',
                         'cross-section':1.,
                         'additional_cut':'1',
                         'isSignal':0, 
@@ -291,13 +299,13 @@ class config(object):
             if processname=='QCD': continue
             
             filename = val['file']
-            if tes!=None and processname != 'ZTT10to50':
-                filename = filename.replace('DY/', 'DY_tes_' + str(tes) + '/')
+            if self.tes!=None and processname != 'ZTT10to50':
+                filename = filename.replace('DY/', 'DY_tes_' + str(self.tes) + '/')
 
 #            file = TFile(val['file']) 
             print filename
             file = TFile(filename) 
-            ntot = file.Get("histogram_mutau/cutflow_mutau").GetBinContent(1)
+            ntot = file.Get("histogram_emu/cutflow_emu").GetBinContent(8)
             self.process[processname]['ntot'] = ntot
             self.process[processname]['file'] = file
 
@@ -379,15 +387,15 @@ class config(object):
 
 
     def returnWeight(self, val):
-        weight = 'weight*' + str(val['cross-section']*self.lumi*1000/val['ntot'])  + '*(gen_match_2==5 ? 0.9 : 1)'
+        weight = 'weight*(trigweight_1_or/trigweight_1)*' + str(val['cross-section']*self.lumi*1000/val['ntot'])  + '*(gen_match_2==5 ? ' + str(tauidsf) + ' : 1)'
 
         if val['name'] in ['ZTT', 'ZTT1', 'ZTT2', 'ZTT3', 'ZTT4',
                            'ZL', 'ZL1', 'ZL2', 'ZL3', 'ZL4',
                            'ZJ', 'ZJ1', 'ZJ2', 'ZJ3', 'ZJ4']:            
-            weight = 'weight*' + self.dy_weightstr + '*(gen_match_2==5 ? 0.9 : 1)'
+            weight = 'weight*' + self.dy_weightstr + '*(gen_match_2==5 ? ' + str(tauidsf) + ' : 1)'
 
         elif val['name'] in ['W', 'W1', 'W2', 'W3', 'W4']:
-            weight = 'weight*' + self.w_weightstr + '*(gen_match_2==5 ? 0.9 : 1)'
+            weight = 'weight*' + self.w_weightstr + '*(gen_match_2==5 ? ' + str(tauidsf) + ' : 1)'
 
         elif val['name'] in ['data_obs']:        
             weight = '1'
@@ -395,14 +403,13 @@ class config(object):
         return weight
 
 
-    def createHistograms(self, catname, selection, exceptionList, vardir, sf_W = 1.):
+    def createHistograms(self, catname, selection, exceptionList, vardir, qcdratio = False, blind = False, dcvar = None):
 
         print '-'*80
         print 'category : ', catname
         print 'selection : ', selection
         print 'exceptionList : ', exceptionList
         print 'vardir = ', vardir
-        print 'SF for W = ', sf_W
         print '-'*80    
 
         for processname, val in self.process.iteritems():
@@ -410,12 +417,12 @@ class config(object):
                 print 'Remove', processname
                 continue
         
-            tree = val['file'].Get('tree_mutau')
+            tree = val['file'].Get('tree_emu')
 
             var_tuples = []
     
             for varname, var in vardir.iteritems():
-#                print catname, processname, varname, var['drawname']
+                print catname, processname, varname, var['drawname']
                 hname = 'hist_' + catname + '_' + processname + '_' + var['drawname']
         
                 hist_register = TH1F(hname, hname, var['nbins'], var['min'], var['max'])
@@ -433,9 +440,15 @@ class config(object):
 
             weight = self.returnWeight(val)
             if processname in ['W', 'W1', 'W2', 'W3', 'W4']:
-                weight += '*' + str(sf_W)
+                weight += '*' + str(1)
 
-#            print processname, weight
+            if qcdratio:
+                weight += '*(getQCDWeight(pt_2, pt_1, dR_ll))'
+#                weight += '*(getQCDWeight(100., 100., 0.2))'
+            if blind:
+                weight += '*(isData==1 ? 0 : 1)'
+
+            print processname, weight
 
 
 
@@ -446,7 +459,7 @@ class config(object):
 
 
         print 'making plots ...'
-        ensureDir('fig_' + catname)
+        ensureDir('fig/' + catname)
 
         for varname, var in vardir.iteritems():        
 
@@ -456,70 +469,101 @@ class config(object):
 
             for processname, val in self.process.iteritems():
 
+                pname = val['name']
+
                 hname = 'hist_' + catname + '_' + processname + '_' + varname
+
+                # added by YT
+                if pname in ['QCD']:
+                    hname = 'hist_' + catname.replace('signal', 'signal_relaxed') + '_' + processname + '_' + varname
+                # added by YT end
+
                 if not self.hists.has_key(hname): continue
 
-                pname = val['name']
-                
+                # added by YT
+                if pname in ['QCD']:
+                    # scale QCD histogram
+                    hname_original = 'hist_' + catname + '_' + processname + '_' + varname
+                    entries_original = self.hists[hname_original].Integral(0, self.hists[hname_original].GetNbinsX()+1)
+
+                    entries_relaxed = self.hists[hname].Integral(0, self.hists[hname].GetNbinsX()+1)
+                    qcdsf = entries_original/entries_relaxed
+
+                    print '*'*80 
+                    print hname, hname_original
+                    print 'QCD SF (original, relaxed) ', entries_original, entries_relaxed, ' => ', qcdsf
+                    print '*'*80 
+
+                    self.hists[hname].Scale(qcdsf)
+                # added by YT end
+
+
                 hist.AddHistogram(pname, self.hists[hname], val['order'])
-                if pname in ['data_obs']:
+                if pname in ['data_obs', 'Signal']:
                     hist.Hist(pname).stack = False
 
-            hist.Group('VV', ['WZ', 'ZZ', 'WWTo1L1Nu2Q', 'ST_t_top', 'ST_t_antitop', 'ST_tw_top', 'ST_tw_antitop'])
+#            hist.Group('VV', ['WZ', 'ZZ', 'WWTo1L1Nu2Q', 'ST_t_top', 'ST_t_antitop', 'ST_tw_top', 'ST_tw_antitop'])
+            hist.Group('VV', ['WWTo1L1Nu2Q', 'WZTo3LNu', 'WZTo2L2Q', 'WZTo1L1Nu2Q', 'ZZTo2Q2Nu', 'ZZTo4L', 'ZZTo4Q', 'VVTo2L2Nu', 'ST_t_top', 'ST_t_antitop', 'ST_tw_top', 'ST_tw_antitop'])
             hist.Group('ZTT', ['ZTT', 'ZTT1', 'ZTT2', 'ZTT3', 'ZTT4'])
             hist.Group('ZL', ['ZL', 'ZL1', 'ZL2', 'ZL3', 'ZL4'])
             hist.Group('ZJ', ['ZJ', 'ZJ1', 'ZJ2', 'ZJ3', 'ZJ4'])
             hist.Group('W', ['W', 'W1', 'W2', 'W3', 'W4'])
-            hist.Group('TT', ['TTT', 'TTJ'])
 
             print hist
-            self.comparisonPlots(hist, 'fig_' + catname + '/' + stackname + '.gif')
+            self.comparisonPlots(hist, 'fig/' + catname + '/' + stackname + '.gif')
 #            display = DisplayManager('fig_' + catname + '/' + stackname + '.gif', True, self.lumi, 0.42, 0.65)
 #            display.Draw(hist)
 
 
+            if varname==dcvar:
+                hist.WriteDataCard(filename='datacard/datacard_tes_' + str(self.tes) + '_'+ catname +'_{}.root'.format(varname), dir='mt_signal', mode='recreate')
 
 
 
 
 
-    def extractQCD(self, catname, exceptionList, var, os_ss_ratio):
-        h_QCD = None
 
-        for processname, val in self.process.iteritems():
-            if processname in exceptionList: continue
+
+    def extractQCD(self, catname, exceptionList, vardir):
+
+        for varname, var in vardir.iteritems(): 
+
+            h_QCD = None
+
+            for processname, val in self.process.iteritems():
+                if processname in exceptionList: continue
         
-            hname = 'hist_' + catname + '_' + processname + '_' + var
+                hname = 'hist_' + catname + '_' + processname + '_' + varname
         
-            addfactor = -1.
-            if val['name'] == 'data_obs':
-                addfactor = 1.
+                addfactor = -1.
+                if val['name'] == 'data_obs':
+                    addfactor = 1.
             
-            if h_QCD == None:
-                h_QCD = copy.deepcopy(self.hists[hname])
-                h_QCD.Scale(addfactor)
+                if h_QCD == None:
+                    h_QCD = copy.deepcopy(self.hists[hname])
+                    h_QCD.Scale(addfactor)
 #                print 'subtract', hname, self.hists[hname].Integral(0, self.hists[hname].GetNbinsX()+1)
 #                print 'subtract_copy', h_QCD.Integral(0, h_QCD.GetNbinsX()+1)
-            else:
-                h_QCD.Add(self.hists[hname], addfactor)
+                else:
+                    h_QCD.Add(self.hists[hname], addfactor)
 #                print 'subtract', hname, self.hists[hname].Integral(0, self.hists[hname].GetNbinsX()+1)
 #                print 'subtract_copy', h_QCD.Integral(0, h_QCD.GetNbinsX()+1)
 
             
-        h_QCD_os = copy.deepcopy(h_QCD)
-        h_QCD_os.Scale(os_ss_ratio)
+            h_QCD_os = copy.deepcopy(h_QCD)
+#            h_QCD_os.Scale(2.4) 
 
-        osname = 'hist_' + catname.replace('ss','os') + '_QCD_' + var
-        h_QCD_os.SetName(osname)
+            osname = 'hist_' + catname.replace('ss','os') + '_QCD_' + varname
+            h_QCD_os.SetName(osname)
 
-        print '-'*80
-        print 'Original yield = ', h_QCD.Integral(0, h_QCD_os.GetNbinsX()+1)
-        print 'OS/SS ratio = ', os_ss_ratio
-        print 'Estimated QCD yield at ', catname, ' : ', h_QCD_os.Integral(0, h_QCD_os.GetNbinsX()+1)
-        print '-'*80
+#            entries = h_QCD.Integral(0, h_QCD_os.GetNbinsX()+1)
+#            print '-'*80
+#            print 'Original yield = ', h_QCD.Integral(0, h_QCD_os.GetNbinsX()+1)
+#        #        print 'OS/SS ratio = ', os_ss_ratio
+#            print 'Estimated QCD yield at ', catname, ' : ', h_QCD_os.Integral(0, h_QCD_os.GetNbinsX()+1)
+#            print '-'*80
 
-        self.hists[osname] = h_QCD_os
-
+            self.hists[osname] = h_QCD_os
 
 
     def comparisonPlots(self, hist, pname='sync.pdf', isRatio=True):

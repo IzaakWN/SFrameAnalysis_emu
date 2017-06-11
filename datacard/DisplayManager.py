@@ -11,7 +11,8 @@ def add_lumi(luminumber):
     lumi.SetTextColor(    1 )
     lumi.SetTextSize(0.05)
     lumi.SetTextFont (   42 )
-    lumi.AddText("2016, " + str(luminumber) + " fb^{-1} (13TeV)")
+#    lumi.AddText("2016, " + str(luminumber) + " fb^{-1} (13TeV)")
+    lumi.AddText("2016, 35.9 fb^{-1} (13TeV)")
     return lumi
 
 

@@ -56,7 +56,7 @@ wcol = TColor.GetColor(222,90,106)
 sHTT_WJets = Style(lineColor=1, markerColor=wcol, fillColor=wcol)
 ttcol = TColor.GetColor(155,152,204)
 sHTT_TTJets = Style(lineColor=1, markerColor=ttcol, fillColor=ttcol)
-sHTT_Higgs = Style(lineColor=kBlue, markerColor=2, lineStyle=2, fillColor=0)
+sHTT_Higgs = Style(lineColor=kBlue, markerColor=kBlue, markerSize=0, lineStyle=2, fillColor=0)
 zlcol = TColor.GetColor(100,182,232)
 sHTT_ZL = Style(lineColor=1, markerColor=zlcol, fillColor=zlcol)
 dibosoncol = TColor.GetColor(222,140,106)
@@ -112,7 +112,7 @@ histPref['WW*'] = {'style':sHTT_VV, 'layer':0.9, 'legend':'Diboson'}
 histPref['WZ*'] = {'style':sHTT_VV, 'layer':0.8, 'legend':'Diboson'} 
 histPref['ZZ*'] = {'style':sHTT_VV, 'layer':0.7, 'legend':'Diboson'} 
 histPref['Diboson'] = {'style':sHTT_VV, 'layer':0.7, 'legend':'Diboson'} 
-histPref['VV'] = {'style':sHTT_VV, 'layer':0.7, 'legend':'Diboson'} 
+histPref['VV*'] = {'style':sHTT_VV, 'layer':0.7, 'legend':'Diboson'} 
 histPref['QCD*'] = {'style':sHTT_QCD, 'layer':0.1, 'legend':'QCD multijet'}
 histPref['W'] = {'style':sHTT_WJets, 'layer':3, 'legend':'W+jets'}  
 histPref['W1'] = {'style':sHTT_WJets, 'layer':3, 'legend':'W+jets'}  

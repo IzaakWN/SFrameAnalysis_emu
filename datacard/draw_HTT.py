@@ -7,8 +7,7 @@ import MultiDraw
 
 
 lumi=12.9
-#basedir = '/shome/ineuteli/analysis/SFrameAnalysis/AnalysisOutput/'
-basedir = '/mnt/t3nfs01/data01/shome/ytakahas/work/TauTau/SFrameAnalysis/AnalysisOutput_SM/'
+basedir = '/scratch/ineuteli/SFrameAnalysis/AnalysisOutput/'
 
 gROOT.SetBatch(True)
 officialStyle(gStyle)
