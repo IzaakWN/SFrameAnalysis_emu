@@ -198,7 +198,7 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
   m_logger << INFO << "MuonName:            " <<    m_muonName          << SLogger::endmsg;
   m_logger << INFO << "GenParticleName:     " <<    m_genParticleName   << SLogger::endmsg;
   
-  m_doJEC = m_doJEC and !(m_doEES);
+  m_doJEC = m_doJEC and !(m_doEES or m_isData);
   m_logger << INFO << "IsData:              " <<    (m_isData   ?   "TRUE" : "FALSE") << SLogger::endmsg;
   m_logger << INFO << "IsSignal:            " <<    (m_isSignal ?   "TRUE" : "FALSE") << SLogger::endmsg;
   m_logger << INFO << "doSVFit:             " <<    (m_doSVFit  ?   "TRUE" : "FALSE") << SLogger::endmsg;
