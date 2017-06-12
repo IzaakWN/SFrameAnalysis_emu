@@ -1015,11 +1015,12 @@ def main():
 def accountTime(jobOptions,jobName,nJobs):
   """Append summary to a log file."""
   
-  makeDirectory("nohup")
+  logdir="nohup"
+  makeDirectory(logdir)
   global succesRate, starttime, startdate
   minutes, seconds = divmod(time.time()-starttime,60)
   hours, minutes   = divmod(minutes,60)
-  with open("nohup/submitSFrame.log","a") as file:
+  with open("%s/submitSFrame.log"%logdir,"a") as file:
     file.write("\n")
     file.write("%s: %s\n" % (jobName, jobOptions.split('/')[-1]))
     file.write("number of jobs: %s\n" % (nJobs))
