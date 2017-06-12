@@ -112,9 +112,10 @@ class TauTauAnalysis : public SCycleBase {
     
     /// Function to book tree branches
     //virtual void FillBranches(const std::string& channel,  const std::vector<UZH::Jet>& Jet, const UZH::Tau& tau, const  TLorentzVector& lepton, const UZH::MissingEt& met );
-    virtual void FillBranches( const std::string& channel, const std::vector<UZH::Jet>& Jet,
+    virtual void FillBranches( const std::string& channel, const std::vector<UZH::Jet>& Jets,
                                const UZH::Muon& muon, const UZH::Electron& electron,
                                const UZH::MissingEt& met, const UZH::MissingEt& puppimet );//, const UZH::MissingEt& mvamet=NULL);
+    virtual void FillBranches_JEC( const char* ch, const std::vector<UZH::Jet>& Jets, const float phi_ll );
     
     // check pass of triggers / MET filters
   //    virtual TString passTrigger( int runNumber, int lumiSection );
@@ -138,7 +139,8 @@ class TauTauAnalysis : public SCycleBase {
     // help function
     virtual Float_t deltaPhi(Float_t p1, Float_t p2);
     virtual Float_t deltaR(Float_t p1, Float_t p2);
-    virtual void shiftLeptonAndMET( const float shift, TLorentzVector& lep_shifted, TLorentzVector& met_shifted, bool shiftEnergy = false );
+    virtual void countJets(  const TLorentzVector& jet_tlv, Int_t& ncjets, Int_t& nfjets, Int_t& ncbtags, TLorentzVector& bjet_tlv, TLorentzVector& jet2_tlv, const bool isBTagged );
+    virtual void shiftLeptonAndMET( const float shift, TLorentzVector& lep_shifted, TLorentzVector& met_shifted, bool shiftEnergy = true );
     
     // IDs
     //virtual bool isNonTrigElectronID( const UZH::Electron& electron );
@@ -149,14 +151,11 @@ class TauTauAnalysis : public SCycleBase {
     virtual bool  getBTagWeight_promote_demote( const UZH::Jet& jet );
     
     // checks
-  //    virtual void checks();
-  //    virtual void cutflowCheck( const std::string& channel );
-  //    virtual void visiblePTCheck();
+    virtual void printRow(   const std::vector<std::string> svec = {}, const std::vector<int> ivec = {}, const std::vector<double> dvec = {}, const std::vector<float> fvec = {}, const int w=10 );
     
     /// fill cut flow
-    //virtual void fillCutflow( const std::string histName, const std::string dirName, const Int_t id, const Double_t weight = 1.);
     virtual void fillCutflow( TString histName, TString dirName, const Int_t id, const Double_t weight = 1. );
-  //    virtual void printCutFlow( const std::string& ch, const std::string& name, const TString hname, const TString dirname, std::vector<std::string> cutName );
+    //virtual void printCutFlow( const std::string& ch, const std::string& name, const TString hname, const TString dirname, std::vector<std::string> cutName );
     
     
     
@@ -198,18 +197,16 @@ class TauTauAnalysis : public SCycleBase {
     void extraLeptonVetos(const std::string& channel, const UZH::Muon& muon, const UZH::Electron& electron);
     
     // naming
-    std::string m_recoTreeName;                     ///< name of tree with reconstructed objects in ntuple
-    // std::string m_outputTreeName;                ///< name of output tree
-    std::vector<std::string> m_outputTreeName_ch_;  ///< name of output trees for analysis
+    std::string m_recoTreeName;         ///< name of tree with reconstructed objects in ntuple
     std::vector<std::string> channels_;
 
-    int m_ntupleLevel;                ///< cut at which branches for ntuple are written out
-    std::string m_jetAK4Name;         ///< name of AK4 jet collection in tree with reconstructed objects
-    std::string m_genJetAK4Name;      ///< name of gen AK4 jet collection in tree with reconstructed objects
-    std::string m_electronName;       ///< name of electron collection in tree with reconstructed objects
-    std::string m_muonName;           ///< name of muon collection in tree with reconstructed objects
-    std::string m_missingEtName;      ///< name of missing E_T collection in tree with reconstructed objects
-    std::string m_genParticleName;    ///< name of gen particle collection in tree with reconstructed objects
+    int m_ntupleLevel;                  ///< cut at which branches for ntuple are written out
+    std::string m_jetAK4Name;           ///< name of AK4 jet collection in tree with reconstructed objects
+    std::string m_genJetAK4Name;        ///< name of gen AK4 jet collection in tree with reconstructed objects
+    std::string m_electronName;         ///< name of electron collection in tree with reconstructed objects
+    std::string m_muonName;             ///< name of muon collection in tree with reconstructed objects
+    std::string m_missingEtName;        ///< name of missing E_T collection in tree with reconstructed objects
+    std::string m_genParticleName;      ///< name of gen particle collection in tree with reconstructed objects
   
     // XML flags for TauTauAnalysis
     bool      m_isData;
@@ -317,7 +314,7 @@ class TauTauAnalysis : public SCycleBase {
     std::map<std::string,Double_t> b_ttptweight;
     std::map<std::string,Double_t> b_ttptweight_runI;
     std::map<std::string,Double_t> b_trigweight_1;
-    std::map<std::string,Double_t> b_trigweight_1_or;
+    std::map<std::string,Double_t> b_trigweight_or_1;
     std::map<std::string,Double_t> b_idisoweight_1;
     std::map<std::string,Int_t>    b_trigweight_2;
     std::map<std::string,Double_t> b_idisoweight_2;
