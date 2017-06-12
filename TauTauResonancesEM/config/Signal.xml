@@ -64,7 +64,7 @@
     <Item Name="doSVFit"                Value="False"/>
     <Item Name="IsSignal"               Value="True"/>
     <Item Name="doRecoilCorr"           Value="False"/>
-    <Item Name="doJEC"                  Value="False" />
+    <Item Name="doJEC"                  Value="True" />
   </UserConfig>
   </Cycle>
 </JobConfiguration>

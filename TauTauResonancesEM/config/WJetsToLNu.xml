@@ -8,6 +8,7 @@
   <Library Name="libTauTauResonancesEM" />
   <Library Name="libScaleFactorTool"/>
   <Library Name="libRecoilCorrector"/>
+  <Library Name="libJetCorrectionTool" />
   <Library Name="libSVFitTool"/>
 
   <Package Name="SFrameCore.par" />
@@ -18,6 +19,7 @@
   <Package Name="TauTauResonancesEM.par" />
   <Package Name="ScaleFactorTool.par" />
   <Package Name="RecoilCorrector.par" />
+  <Package Name="JetCorrectionTool.par" />
   <Package Name="SVFitTool.par" />
 
   <Cycle Name="TauTauAnalysis" OutputDirectory="./" PostFix="" ProofServer="lite" ProofWorkDir="" RunMode="LOCAL" TargetLumi="1.0">
@@ -43,6 +45,7 @@
     <Item Name="doSVFit"                    Value="True"/>
     <Item Name="IsSignal"                   Value="False"/>
     <Item Name="doRecoilCorr"               Value="True"/>
+    <Item Name="doJEC"                      Value="True"/>/
   </UserConfig>
   </Cycle>
 </JobConfiguration>
