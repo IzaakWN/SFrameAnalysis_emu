@@ -6,10 +6,10 @@
   <Library Name="libPileupReweightingTool" />
   <Library Name="libBTaggingTools" />
   <Library Name="libTauTauResonancesEM" />
-  <Library Name="libScaleFactorTool"/>
-  <Library Name="libRecoilCorrector"/>
+  <Library Name="libScaleFactorTool" />
+  <Library Name="libRecoilCorrector" />
   <Library Name="libJetCorrectionTool" />
-  <Library Name="libSVFitTool"/>
+  <Library Name="libSVFitTool" />
 
   <Package Name="SFrameCore.par" />
   <Package Name="NtupleVariables.par" />
@@ -53,7 +53,6 @@
     </InputData>
   <UserConfig>
     <Item Name="RecoTreeName"               Value="tree"/>
-    <Item Name="OutputTreeName_emu"         Value="tree_emu"/>
     <Item Name="doSVFit"                    Value="False"/>
     <Item Name="IsSignal"                   Value="False"/>
     <Item Name="doRecoilCorr"               Value="True"/>
