@@ -1327,17 +1327,13 @@ void TauTauAnalysis::FillBranches(const std::string& channel, const std::vector<
   TLorentzVector electron_tlv; //_shifted
   electron_tlv.SetPtEtaPhiM(b_pt_2[ch], b_eta_2[ch], b_phi_2[ch], b_m_2[ch]);
   
-  if(!m_isData){
-
-    if(m_doEES && channel=="emu"){ // Electron Energy Scale
-      
-      if(fabs(electron.tlv().Eta())<1.479) shiftLeptonAndMET(m_EESshift,      muon_tlv,met_tlv_corrected);
-      else                                 shiftLeptonAndMET(m_EESshiftEndCap,muon_tlv,met_tlv_corrected);
-      b_pt_1[ch]    = muon_tlv.Pt();
-      b_m_1[ch]     = muon_tlv.M();
-      fmet          = met_tlv_corrected.E();
-      fmetphi       = met_tlv_corrected.Phi();
-    }
+  if(!m_isData and m_doEES){ // Electron Energy Scale
+    if(fabs(electron.tlv().Eta())<1.479) shiftLeptonAndMET(m_EESshift,      electron_tlv,met_tlv_corrected);
+    else                                 shiftLeptonAndMET(m_EESshiftEndCap,electron_tlv,met_tlv_corrected);
+    b_pt_2[ch]    = electron_tlv.Pt();
+    b_m_2[ch]     = electron_tlv.M();
+    fmet          = met_tlv_corrected.E();
+    fmetphi       = met_tlv_corrected.Phi();
   }
   
   if (m_doJEC){
@@ -1432,7 +1428,7 @@ void TauTauAnalysis::FillBranches(const std::string& channel, const std::vector<
   //std::cout << ">>> doSVFit: " << doSVFit << std::endl;
   if( doSVFit ){
     //std::cout << ">>> SVFit mass: ";
-    m_SVFitTool.addMeasuredLeptonTau("emu",muon.tlv(), electron.tlv());
+    m_SVFitTool.addMeasuredLeptonTau("emu",electron.tlv(),muon.tlv());
     m_SVFitTool.getSVFitMassAndPT(m_sv,pt_tt_sv,met_tlv_corrected.Px(),met_tlv_corrected.Py(), met.cov00(),met.cov10(),met.cov11());
     //std::cout << "m_sv=" << m_sv << ", pt_tt_sv=" << pt_tt_sv << std::endl;
   }
