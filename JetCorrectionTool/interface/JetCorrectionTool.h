@@ -52,7 +52,7 @@ class JetCorrectionTool  : public SToolBase   {
     public:
 
         JetCorrectionTool( SCycleBase* parent, const char* name = "JetCorrectionTool" );
-        ~JetCorrectionTool(); 
+        ~JetCorrectionTool();
         
         void BeginInputData( const SInputData& id ) throw( SError ); //const Ntuple::GenJetak4NtupleObject& m_genJetAK4
         

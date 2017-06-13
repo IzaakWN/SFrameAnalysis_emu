@@ -31,6 +31,7 @@ ScaleFactorTool::ScaleFactorTool(SCycleBase* parent, const char* name ):
 
 void ScaleFactorTool::BeginInputData( const SInputData& ) throw( SError ) {
   
+  m_logger << INFO << SLogger::endmsg;
   m_logger << INFO << "Initializing ScaleFactor for lepons"     << SLogger::endmsg;
   m_logger << INFO << "Efficiency file Mu IdIso: "              << m_File_MuIdIso           << SLogger::endmsg;
   m_logger << INFO << "Efficiency file Ele IdIso: "             << m_File_EleIdIso          << SLogger::endmsg;

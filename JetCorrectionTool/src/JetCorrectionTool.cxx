@@ -35,6 +35,14 @@ JetCorrectionTool::JetCorrectionTool(SCycleBase* parent, const char* name ): STo
 
 
 
+JetCorrectionTool::~JetCorrectionTool() {
+  //m_logger << INFO << "deconstruction JetCorrectionTool" << SLogger::endmsg;
+  delete trandom;
+  delete eScaler;
+}
+
+
+
 void JetCorrectionTool::BeginInputData( const SInputData& ) throw( SError ) {
 
   // Electrons
@@ -131,13 +139,6 @@ void JetCorrectionTool::BeginInputData( const SInputData& ) throw( SError ) {
   eScaler->doSmearings = true;
   
   return;
-}
-
-
-
-JetCorrectionTool::~JetCorrectionTool() {
-  delete trandom;
-  delete eScaler;
 }
 
 
