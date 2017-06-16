@@ -1420,16 +1420,17 @@ void TauTauAnalysis::FillBranches(const std::string& channel, const std::vector<
   //////////////////
   //std::cout << ">>> SVFit" << std::endl;
  
-  bool doSVFit = m_doSVFit && b_lepton_vetos[ch]==0;
-  if(m_doEES) doSVFit = doSVFit && ncbtag>0 && b_iso_1[ch]<0.15 && b_iso_2[ch]==1;
+  bool doSVFit = m_doSVFit and !(b_extraelec_veto_ or b_extramuon_veto_) and b_iso_1[ch]<0.50 and b_iso_2[ch]<0.50;
+  if(m_doEES) doSVFit = doSVFit and ncbtag>0;
   
   double m_sv = -1;
   double pt_tt_sv = -1;
   //std::cout << ">>> doSVFit: " << doSVFit << std::endl;
   if( doSVFit ){
     //std::cout << ">>> SVFit mass: ";
+    //std::cout << "pt_1=" << muon.tlv().Pt() << ", pt_2=" << electron.tlv().Pt() << std::endl;
     m_SVFitTool.addMeasuredLeptonTau("emu",electron.tlv(),muon.tlv());
-    m_SVFitTool.getSVFitMassAndPT(m_sv,pt_tt_sv,met_tlv_corrected.Px(),met_tlv_corrected.Py(), met.cov00(),met.cov10(),met.cov11());
+    m_SVFitTool.getSVFitMassAndPT(m_sv,pt_tt_sv,met_tlv_corrected.Px(),met_tlv_corrected.Py(),met.cov00(),met.cov10(),met.cov11());
     //std::cout << "m_sv=" << m_sv << ", pt_tt_sv=" << pt_tt_sv << std::endl;
   }
   b_m_sv[ch] = m_sv;
