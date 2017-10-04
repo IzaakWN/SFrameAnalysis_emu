@@ -118,17 +118,17 @@ class TauTauAnalysis : public SCycleBase {
     virtual void FillBranches_JEC( const char* ch, const std::vector<UZH::Jet>& Jets, const float phi_ll );
     
     // check pass of triggers / MET filters
-  //    virtual TString passTrigger( int runNumber, int lumiSection );
+    //virtual TString passTrigger( int runNumber, int lumiSection );
     virtual TString passTrigger();
     virtual bool TrigMatch(const UZH::Muon& muon, const UZH::Electron& electron, int runnumber);
-  //    virtual bool TrigMatchCheck();
+    //virtual bool TrigMatchCheck();
     virtual bool passMETFilters();
     
     // obtain event weights for MC
     virtual void getEventWeight();
     
     // GenFilter to select Z to tautau events
-  //    virtual void genFilterZtautau();
+    //virtual void genFilterZtautau();
     
     // set tlv of generator boson for recoil corrections
     virtual void setGenBosonTLVs();
@@ -340,7 +340,17 @@ class TauTauAnalysis : public SCycleBase {
     std::map<std::string,Int_t>    b_nbtag20;
     std::map<std::string,Int_t>    b_ncbtag20;
     std::map<std::string,Int_t>    b_nfbtag20;
-
+    
+    std::map<std::string,Int_t>    b_njets_jesUp;
+    std::map<std::string,Int_t>    b_njets_jesDown;
+    std::map<std::string,Int_t>    b_njets_jer;
+    std::map<std::string,Int_t>    b_njets_jerUp;
+    std::map<std::string,Int_t>    b_njets_jerDown;
+    std::map<std::string,Int_t>    b_njets20_jesUp;
+    std::map<std::string,Int_t>    b_njets20_jesDown;
+    std::map<std::string,Int_t>    b_njets20_jer;
+    std::map<std::string,Int_t>    b_njets20_jerUp;
+    std::map<std::string,Int_t>    b_njets20_jerDown;
     std::map<std::string,Int_t>    b_ncbtag_jesUp;
     std::map<std::string,Int_t>    b_ncbtag_jesDown;
     std::map<std::string,Int_t>    b_ncbtag_jer;
@@ -422,6 +432,33 @@ class TauTauAnalysis : public SCycleBase {
     std::map<std::string,Double_t> b_jpt_2;
     std::map<std::string,Double_t> b_jeta_2;
     std::map<std::string,Double_t> b_jphi_2;
+    
+    std::map<std::string,Double_t> b_jpt_1_jesUp;
+    std::map<std::string,Double_t> b_jpt_1_jesDown;
+    std::map<std::string,Double_t> b_jpt_1_jer;
+    std::map<std::string,Double_t> b_jpt_1_jerUp;
+    std::map<std::string,Double_t> b_jpt_1_jerDown;
+    std::map<std::string,Double_t> b_jeta_1_jesUp;
+    std::map<std::string,Double_t> b_jeta_1_jesDown;
+    std::map<std::string,Double_t> b_jeta_1_jer;
+    std::map<std::string,Double_t> b_jeta_1_jerUp;
+    std::map<std::string,Double_t> b_jeta_1_jerDown;
+    std::map<std::string,Double_t> b_jpt_2_jesUp;
+    std::map<std::string,Double_t> b_jpt_2_jesDown;
+    std::map<std::string,Double_t> b_jpt_2_jer;
+    std::map<std::string,Double_t> b_jpt_2_jerUp;
+    std::map<std::string,Double_t> b_jpt_2_jerDown;
+    std::map<std::string,Double_t> b_jeta_2_jesUp;
+    std::map<std::string,Double_t> b_jeta_2_jesDown;
+    std::map<std::string,Double_t> b_jeta_2_jer;
+    std::map<std::string,Double_t> b_jeta_2_jerUp;
+    std::map<std::string,Double_t> b_jeta_2_jerDown;
+    std::map<std::string,Double_t> b_jphi_1_jer;
+    std::map<std::string,Double_t> b_jphi_2_jer;
+    
+    // std::map<std::string,Double_t> b_fjpt_1;
+    // std::map<std::string,Double_t> b_fjeta_1;
+    // std::map<std::string,Double_t> b_fjphi_1;
     
     std::map<std::string,Double_t> b_bpt_1;
     std::map<std::string,Double_t> b_beta_1;
