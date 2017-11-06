@@ -118,7 +118,6 @@ class TauTauAnalysis : public SCycleBase {
     virtual void FillJetBranches(  const char* ch, std::vector<UZH::Jet>& Jets, UZH::MissingEt& met,
                                    const TLorentzVector& muon_tlv, const TLorentzVector& electron_tlv );
     virtual void FillJetBranches_JEC( double& jpt, double& jeta, const TLorentzVector& jet, bool save=true );
-    virtual void FillJetBranches_JEC( double& jpt_1, double& jeta_1, double& jpt_2, double& jeta_2, const TLorentzVector& jet1, const TLorentzVector& jet2 ); //, bool swap = false
     
     // check pass of triggers / MET filters
     //virtual TString passTrigger( int runNumber, int lumiSection );
@@ -438,21 +437,25 @@ class TauTauAnalysis : public SCycleBase {
     std::map<std::string,Double_t> b_jpt_1_jesUp;
     std::map<std::string,Double_t> b_jpt_1_jesDown;
     std::map<std::string,Double_t> b_jpt_1_nom;
+    std::map<std::string,Double_t> b_jpt_1_uo;
     std::map<std::string,Double_t> b_jpt_1_jerUp;
     std::map<std::string,Double_t> b_jpt_1_jerDown;
     std::map<std::string,Double_t> b_jeta_1_jesUp;
     std::map<std::string,Double_t> b_jeta_1_jesDown;
     std::map<std::string,Double_t> b_jeta_1_nom;
+    std::map<std::string,Double_t> b_jeta_1_uo;
     std::map<std::string,Double_t> b_jeta_1_jerUp;
     std::map<std::string,Double_t> b_jeta_1_jerDown;
     std::map<std::string,Double_t> b_jpt_2_jesUp;
     std::map<std::string,Double_t> b_jpt_2_jesDown;
     std::map<std::string,Double_t> b_jpt_2_nom;
+    std::map<std::string,Double_t> b_jpt_2_uo;
     std::map<std::string,Double_t> b_jpt_2_jerUp;
     std::map<std::string,Double_t> b_jpt_2_jerDown;
     std::map<std::string,Double_t> b_jeta_2_jesUp;
     std::map<std::string,Double_t> b_jeta_2_jesDown;
     std::map<std::string,Double_t> b_jeta_2_nom;
+    std::map<std::string,Double_t> b_jeta_2_uo;
     std::map<std::string,Double_t> b_jeta_2_jerUp;
     std::map<std::string,Double_t> b_jeta_2_jerDown;
     
