@@ -1,0 +1,75 @@
+# Variable definition file for jets
+#
+# expected format:
+# detail_level  C++_type  name  [default]
+#
+# Do not add variables here which are defined in Particle.h.
+#
+
+Basic	int*	pdgId
+Basic	floatingnumber*	charge
+Basic	floatingnumber*	d0
+Basic	floatingnumber*	dz
+
+ID	int*	TauType
+ID	int*	decayMode
+
+AdvancedID	bool	decayModeFindingNewDMs
+AdvancedID	bool	decayModeFinding
+
+AdvancedID	floatingnumber*	chargedIsoPtSum
+AdvancedID	floatingnumber*	neutralIsoPtSum
+AdvancedID	floatingnumber*	puCorrPtSum
+AdvancedID	floatingnumber*	chargedIsoPtSumdR03
+AdvancedID	floatingnumber*	neutralIsoPtSumdR03
+AdvancedID	floatingnumber*	photonPtSumOutsideSignalConedR03
+AdvancedID	floatingnumber*	chargedPionPt
+AdvancedID	floatingnumber*	neutralPionPt
+AdvancedID	floatingnumber*	byIsolationMVArun2v1DBdR03oldDMwLTraw
+AdvancedID	floatingnumber*	byIsolationMVArun2v1DBnewDMwLTraw
+AdvancedID	floatingnumber*	byIsolationMVArun2v1DBoldDMwLTraw
+AdvancedID	floatingnumber*	byIsolationMVArun2v1PWnewDMwLTraw
+
+AdvancedID	bool	byLooseCombinedIsolationDeltaBetaCorr3Hits
+AdvancedID	bool	byMediumCombinedIsolationDeltaBetaCorr3Hits
+AdvancedID	bool	byTightCombinedIsolationDeltaBetaCorr3Hits
+AdvancedID	bool	byCombinedIsolationDeltaBetaCorrRaw3Hits
+
+AdvancedID	bool	byLooseIsolationMVArun2v1DBdR03oldDMwLT
+AdvancedID	bool	byLooseIsolationMVArun2v1DBnewDMwLT
+AdvancedID	bool	byLooseIsolationMVArun2v1DBoldDMwLT
+AdvancedID	bool	byLooseIsolationMVArun2v1PWnewDMwLT
+AdvancedID	bool	byMediumIsolationMVArun2v1DBdR03oldDMwLT
+AdvancedID	bool	byMediumIsolationMVArun2v1DBnewDMwLT
+AdvancedID	bool	byMediumIsolationMVArun2v1DBoldDMwLT
+AdvancedID	bool	byMediumIsolationMVArun2v1PWnewDMwLT
+AdvancedID	bool	byTightIsolationMVArun2v1DBdR03oldDMwLT
+AdvancedID	bool	byTightIsolationMVArun2v1DBnewDMwLT
+AdvancedID	bool	byTightIsolationMVArun2v1DBoldDMwLT
+AdvancedID	bool	byTightIsolationMVArun2v1PWnewDMwLT
+AdvancedID	bool	byVLooseIsolationMVArun2v1DBdR03oldDMwLT
+AdvancedID	bool	byVLooseIsolationMVArun2v1DBnewDMwLT
+AdvancedID	bool	byVLooseIsolationMVArun2v1DBoldDMwLT
+AdvancedID	bool	byVLooseIsolationMVArun2v1PWnewDMwLT
+AdvancedID	bool	byVTightIsolationMVArun2v1DBdR03oldDMwLT
+AdvancedID	bool	byVTightIsolationMVArun2v1DBnewDMwLT
+AdvancedID	bool	byVTightIsolationMVArun2v1DBoldDMwLT
+AdvancedID	bool	byVTightIsolationMVArun2v1PWnewDMwLT
+AdvancedID	bool	byVVTightIsolationMVArun2v1DBdR03oldDMwLT
+AdvancedID	bool	byVVTightIsolationMVArun2v1DBnewDMwLT
+AdvancedID	bool	byVVTightIsolationMVArun2v1DBoldDMwLT
+AdvancedID	bool	byVVTightIsolationMVArun2v1PWnewDMwLT
+
+AdvancedID	floatingnumber*	againstElectronMVA6raw
+AdvancedID	floatingnumber*	againstElectronMVA6category
+
+AdvancedID	bool	againstElectronVLooseMVA6
+AdvancedID	bool	againstElectronLooseMVA6
+AdvancedID	bool	againstElectronMediumMVA6
+AdvancedID	bool	againstElectronTightMVA6
+AdvancedID	bool	againstElectronVTightMVA6
+AdvancedID	bool	againstMuonLoose3
+AdvancedID	bool	againstMuonTight3
+
+AdvancedID	floatingnumber*	byPhotonPtSumOutsideSignalCone
+
