@@ -303,8 +303,8 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
     DeclareVariable( b_eta_3[ch],               "eta_3",                treeName);
     DeclareVariable( b_decayMode_3[ch],         "decayMode_3",          treeName);
     DeclareVariable( b_gen_match_3[ch],         "gen_match_3",          treeName);
-    DeclareVariable( b_byIsolationMVA3newDMwLTraw_3_3[ch],                "byIsolationMVA3newDMwLTraw_3",                  treeName);
     DeclareVariable( b_byIsolationMVA3oldDMwLTraw_3_3[ch],                "byIsolationMVA3oldDMwLTraw_3",                  treeName);
+    DeclareVariable( b_byIsolationMVA3newDMwLTraw_3_3[ch],                "byIsolationMVA3newDMwLTraw_3",                  treeName);
     DeclareVariable( b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch],         "byLooseIsolationMVArun2v1DBoldDMwLT_3",         treeName);
     DeclareVariable( b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch],        "byMediumIsolationMVArun2v1DBoldDMwLT_3",        treeName);
     DeclareVariable( b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch],         "byTightIsolationMVArun2v1DBoldDMwLT_3",         treeName);
@@ -875,18 +875,19 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   int maxIndex = -1;
   for(int i=0; i<(m_tau.N); ++i){
     UZH::Tau tau( &m_tau, i );
-    if(tau.byIsolationMVArun2v1DBnewDMwLTraw()<maxIso) continue;
+    if(tau.byIsolationMVArun2v1DBoldDMwLTraw()<maxIso) continue;
     if(tau.TauType() != 1) continue; // 1 for standard ID, 2 for boosted ID
     if(fabs(tau.dz()) > m_tauDzCut) continue;
     if(tau.decayModeFinding() < 0.5) continue; //and mytau.decayMode()!=11
     if(fabs(tau.charge()) != 1) continue; // remove for boosted ID
     if(tau.againstElectronVLooseMVA6() < 0.5 or tau.againstMuonTight3() < 0.5) continue; // needs SFs!
     maxIndex = i;
-    maxIso   = tau.byIsolationMVArun2v1DBnewDMwLTraw();
+    maxIso   = tau.byIsolationMVArun2v1DBoldDMwLTraw();
   }
   if(maxIndex>0){
     UZH::Tau tau( &m_tau, maxIndex );
     b_byIsolationMVA3oldDMwLTraw_3_3[ch]                = tau.byIsolationMVArun2v1DBoldDMwLTraw();
+    b_byIsolationMVA3newDMwLTraw_3_3[ch]                = tau.byIsolationMVArun2v1DBnewDMwLTraw();
     b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch]         = tau.byLooseIsolationMVArun2v1DBoldDMwLT();
     b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch]        = tau.byMediumIsolationMVArun2v1DBoldDMwLT();
     b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch]         = tau.byTightIsolationMVArun2v1DBoldDMwLT();
@@ -904,6 +905,7 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
     // TODO: againstLepton SFs!
   }else{
     b_byIsolationMVA3oldDMwLTraw_3_3[ch]                = -9;
+    b_byIsolationMVA3newDMwLTraw_3_3[ch]                = -9;
     b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch]         = -1;
     b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch]        = -1;
     b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch]         = -1;
