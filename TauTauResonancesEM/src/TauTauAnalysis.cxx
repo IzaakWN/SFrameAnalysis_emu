@@ -14,6 +14,7 @@ TauTauAnalysis::TauTauAnalysis() : SCycleBase(),
     m_genJetAK4( this ),
     m_electron( this ),
     m_muon( this ),
+    m_tau( this ),
     m_missingEt( this ),
     m_puppimissingEt( this ),
     m_genParticle( this ),
@@ -36,6 +37,7 @@ TauTauAnalysis::TauTauAnalysis() : SCycleBase(),
   DeclareProperty( "JetAK4Name",            m_jetAK4Name            = "jetAK4"          );
   DeclareProperty( "ElectronName",          m_electronName          = "el"              );
   DeclareProperty( "MuonName",              m_muonName              = "mu"              );
+  DeclareProperty( "TauName",               m_tauName               = "tau"             );
   DeclareProperty( "MissingEtName",         m_missingEtName         = "MET"             );
   DeclareProperty( "GenParticleName",       m_genParticleName       = "genParticle"     );
   
@@ -54,19 +56,23 @@ TauTauAnalysis::TauTauAnalysis() : SCycleBase(),
   DeclareProperty( "AK4JetEtaCut",          m_AK4jetEtaCut          = 4.7               );
   DeclareProperty( "CSVWorkingPoint",       m_CSVWorkingPoint       = 0.8484            );
   
-  DeclareProperty( "ElectronPtCut",         m_electronPtCut         = 13.               );
-  DeclareProperty( "ElectronEtaCut",        m_electronEtaCut        = 2.5               );
+  DeclareProperty( "ElectronPtCut",         m_electronPtCut         = 20.               );
+  DeclareProperty( "ElectronEtaCut",        m_electronEtaCut        = 2.1               );
   DeclareProperty( "ElectronD0Cut",         m_electronD0Cut         = 0.045             );
   DeclareProperty( "ElectronDzCut",         m_electronDzCut         = 0.2               );
   DeclareProperty( "ElectronIsoCut",        m_electronIsoCut        = 0.1               );
   
-  DeclareProperty( "MuonPtCut",             m_muonPtCut             = 10.               ); // 23
-  DeclareProperty( "MuonEtaCut",            m_muonEtaCut            = 2.4               ); // 2.4; 2.1
+  DeclareProperty( "MuonPtCut",             m_muonPtCut             = 28.               ); // 23
+  DeclareProperty( "MuonEtaCut",            m_muonEtaCut            = 2.1               ); // 2.4; 2.1
   DeclareProperty( "MuonD0Cut",             m_muonD0Cut             = 0.045             );
   DeclareProperty( "MuonDzCut",             m_muonDzCut             = 0.2               );
   DeclareProperty( "MuonIsoCut",            m_muonIsoCut            = 0.15              );
   
-  DeclareProperty( "JSONName",              m_jsonName              = std::string(std::getenv("SFRAME_DIR"))+"/../GoodRunsLists/JSON/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt" );
+  DeclareProperty( "TauPtCut",              m_tauPtCut              = 20.               );
+  DeclareProperty( "TauEtaCut",             m_tauEtaCut             = 2.3               );
+  DeclareProperty( "TauDzCut",              m_tauDzCut              = 0.2               );
+  
+  DeclareProperty( "JSONName",              m_jsonName              = std::string(std::getenv("SFRAME_DIR"))+"/../GoodRunsLists/JSON/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt" ); // 41.86 /fb
   
 }
 
@@ -105,10 +111,8 @@ void TauTauAnalysis::BeginCycle() throw( SError ) {
     AddConfigObject( &m_grl );
   }
   
-
-  m_triggerNames_emu.clear();
-  m_triggerNames_emu_mc.clear();
-  m_triggerNames_emu_data.clear();  
+  m_triggers_mutau.clear();
+  m_triggers_emu.clear();
   
   // TRIGGERS
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016
@@ -116,23 +120,15 @@ void TauTauAnalysis::BeginCycle() throw( SError ) {
   // https://hypernews.cern.ch/HyperNews/CMS/get/AUX/2017/02/10/17:01:24-67933-2016triggerGrandTable.pdf
   // https://indico.cern.ch/event/598433/#day-2017-02-15
   
+  // muon triggers 
+  m_triggers_mutau.push_back( "HLT_IsoMu27_v"                                           );
+  m_triggers_mutau.push_back( "HLT_IsoTkMu27_v"                                         );
+  m_triggers_mutau.push_back( "HLT_IsoMu27_eta2p1"                                      );
+  m_triggers_mutau.push_back( "HLT_IsoTkMu27_eta2p1"                                    );
+  
   // emu triggers
-  m_triggerNames_emu_data.push_back("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v");
-  m_triggerNames_emu_data.push_back("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v");
-
-  // for period G-H
-  m_triggerNames_emu_data.push_back("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v");
-  m_triggerNames_emu_data.push_back("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");
-
-  //
-  m_triggerNames_emu_mc.push_back("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v");
-  m_triggerNames_emu_mc.push_back("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v");
-
-  if(m_isData){
-    m_triggerNames_emu = m_triggerNames_emu_data;
-  }else{
-    m_triggerNames_emu = m_triggerNames_emu_mc;
-  }
+  //m_triggers_emu.push_back("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v"       );
+  //m_triggers_emu.push_back("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v"      );
   
   return;
 
@@ -190,6 +186,7 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
   m_logger << INFO << "JetAK4Name:          " <<    m_jetAK4Name        << SLogger::endmsg;
   m_logger << INFO << "ElectronName:        " <<    m_electronName      << SLogger::endmsg;
   m_logger << INFO << "MuonName:            " <<    m_muonName          << SLogger::endmsg;
+  m_logger << INFO << "TauName:             " <<    m_tauName           << SLogger::endmsg;
   m_logger << INFO << "GenParticleName:     " <<    m_genParticleName   << SLogger::endmsg;
   
   m_doEES = m_doEES and !m_isData;
@@ -301,6 +298,22 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
     DeclareVariable( b_iso_2[ch],               "iso_2",                treeName);
     DeclareVariable( b_iso_2_medium[ch],        "iso_2_medium",         treeName);
     DeclareVariable( b_gen_match_2[ch],         "gen_match_2",          treeName);
+    
+    DeclareVariable( b_pt_3[ch],                "pt_3",                 treeName);
+    DeclareVariable( b_eta_3[ch],               "eta_3",                treeName);
+    DeclareVariable( b_decayMode_3[ch],         "decayMode_3",          treeName);
+    DeclareVariable( b_gen_match_3[ch],         "gen_match_3",          treeName);
+    DeclareVariable( b_byIsolationMVA3newDMwLTraw_3_3[ch],                "byIsolationMVA3newDMwLTraw_3",                  treeName);
+    DeclareVariable( b_byIsolationMVA3oldDMwLTraw_3_3[ch],                "byIsolationMVA3oldDMwLTraw_3",                  treeName);
+    DeclareVariable( b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch],         "byLooseIsolationMVArun2v1DBoldDMwLT_3",         treeName);
+    DeclareVariable( b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch],        "byMediumIsolationMVArun2v1DBoldDMwLT_3",        treeName);
+    DeclareVariable( b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch],         "byTightIsolationMVArun2v1DBoldDMwLT_3",         treeName);
+    DeclareVariable( b_byVTightIsolationMVArun2v1DBoldDMwLT_3[ch],        "byVTightIsolationMVArun2v1DBoldDMwLT_3",        treeName);
+    DeclareVariable( b_byVVTightIsolationMVArun2v1DBoldDMwLT_3[ch],       "byVVTightIsolationMVArun2v1DBoldDMwLT_3",       treeName);
+    DeclareVariable( b_byCombinedIsolationDeltaBetaCorrRaw3Hits_3[ch],    "byCombinedIsolationDeltaBetaCorrRaw3Hits_3",    treeName);
+    DeclareVariable( b_byLooseCombinedIsolationDeltaBetaCorr3Hits_3[ch],  "byLooseCombinedIsolationDeltaBetaCorr3Hits_3",  treeName);
+    DeclareVariable( b_byMediumCombinedIsolationDeltaBetaCorr3Hits_3[ch], "byMediumCombinedIsolationDeltaBetaCorr3Hits_3", treeName);
+    DeclareVariable( b_byTightCombinedIsolationDeltaBetaCorr3Hits_3[ch],  "byTightCombinedIsolationDeltaBetaCorr3Hits_3",  treeName);
     
     DeclareVariable( b_dilepton_veto[ch],       "dilepton_veto",        treeName);
     DeclareVariable( b_extraelec_veto[ch],      "extraelec_veto",       treeName);
@@ -481,7 +494,7 @@ void TauTauAnalysis::EndInputData( const SInputData& ) throw( SError ) {
   m_logger << INFO << " " << SLogger::endmsg;
   m_logger << INFO << "EndInputData" << SLogger::endmsg;
   m_logger << INFO << " " << SLogger::endmsg;
-
+  
   for(auto ch: channels_) {
     m_logger << INFO << "cut flow for " << ch << SLogger::endmsg;
     m_logger << INFO << Form( "Cut\t%25.25s\tEvents\tRelEff\tAbsEff", "Name" ) << SLogger::endmsg;
@@ -501,11 +514,11 @@ void TauTauAnalysis::EndInputData( const SInputData& ) throw( SError ) {
       Hist(hname, dirname)->GetXaxis()->SetBinLabel(ibin+1, kCutName[icut].c_str());
     }
     
+    m_logger << INFO << " " << SLogger::endmsg;
     
-    std::cout << std::endl;
   }
 
-   return;
+  return;
 }
 
 
@@ -527,6 +540,7 @@ void TauTauAnalysis::BeginInputFile( const SInputData& ) throw( SError ) {
   }
   m_electron.ConnectVariables(      m_recoTreeName.c_str(), Ntuple::ElectronBasic|Ntuple::ElectronID|Ntuple::ElectronAdvancedID|Ntuple::ElectronBoostedIsolation|Ntuple::ElectronSuperCluster, (m_electronName + "_").c_str() );
   m_muon.ConnectVariables(          m_recoTreeName.c_str(), Ntuple::MuonBasic|Ntuple::MuonID|Ntuple::MuonIsolation|Ntuple::MuonTrack|Ntuple::MuonBoostedIsolation, (m_muonName + "_").c_str() );
+  m_tau.ConnectVariables(           m_recoTreeName.c_str(), Ntuple::TauBasic|Ntuple::TauID|Ntuple::TauAdvancedID, (m_tauName + "_").c_str() );
   
   m_missingEt.ConnectVariables(     m_recoTreeName.c_str(), Ntuple::MissingEtBasic|Ntuple::MissingEtAnalysis|Ntuple::MissingEtAnalysisSyst|Ntuple::MissingEtCovAnalysis, (m_missingEtName + "_").c_str() );
   m_puppimissingEt.ConnectVariables(m_recoTreeName.c_str(), Ntuple::MissingEtBasic, (m_missingEtName + "_puppi_").c_str() );
@@ -573,26 +587,14 @@ void TauTauAnalysis::ExecuteEvent( const SInputData&, Double_t ) throw( SError )
   
   
   // Cut 2: pass trigger
-
   m_trigger_Flags = passTrigger();
-
-//  if(m_trigger_Flags != "none") m_logger << VERBOSE << "Trigger pass" << SLogger::endmsg;
-//  else throw SError( SError::SkipEvent );
+  if(m_trigger_Flags == "none"){
+    throw SError( SError::SkipEvent );
+  }
   
   for (auto ch: channels_){
     fillCutflow("cutflow_" + ch, "histogram_" + ch, kTrigger, 1);
   }
-  
-  
-  
-  // Cut 3: pass MET filters
-  //if (passMETFilters()) m_logger << VERBOSE << "passMETFilters" << SLogger::endmsg;
-  //else throw SError( SError::SkipEvent );
-  
-  for (auto ch: channels_){
-    fillCutflow("cutflow_" + ch, "histogram_" + ch, kMetFilters, 1);
-  }
-  
   
   
   // Cut 4: lepton (muon)
@@ -616,7 +618,6 @@ void TauTauAnalysis::ExecuteEvent( const SInputData&, Double_t ) throw( SError )
     fillCutflow("cutflow_emu", "histogram_emu", kLepton, 1);
   }else throw SError(SError::SkipEvent);
   
-
   
   // Cut 4: lepton (electron)
   std::vector<UZH::Electron> goodElectrons;
@@ -644,20 +645,14 @@ void TauTauAnalysis::ExecuteEvent( const SInputData&, Double_t ) throw( SError )
   if(goodElectrons.size()!=0){
     fillCutflow("cutflow_emu", "histogram_emu", kOtherLepton, 1);
   }else throw SError(SError::SkipEvent);
-  
-//  if(m_eventInfo.eventNumber==76757818 && m_eventInfo.runNumber==282917 && m_eventInfo.lumiBlock==126){
-//    std::cout << m_eventInfo.eventNumber <<  " : YUTA5"  << std::endl;
-//  }
-
-
-
+    
   
   // Cut 6: lepton - lepton pair
 
   std::vector<ll_pair> emu_pair;
   bool passedDeltaRCut = false; // check
   for(int imuon=0; imuon < (int)goodMuons.size(); imuon++){
-    //    if(m_trigger_Flags == "none") break; // trigger
+    //if(m_trigger_Flags == "none") break; // trigger
     for(int ielectron=0; ielectron < (int)goodElectrons.size(); ielectron++){
       
       Float_t dR = goodMuons[imuon].tlv().DeltaR(goodElectrons[ielectron].tlv());
@@ -666,23 +661,17 @@ void TauTauAnalysis::ExecuteEvent( const SInputData&, Double_t ) throw( SError )
       Float_t mupt = goodMuons[imuon].pt();
       Float_t reliso = goodMuons[imuon].SemileptonicPFIso() / mupt;
       Float_t ept = goodElectrons[ielectron].pt();      
-      //      Float_t eiso = goodElectrons[ielectron].SemileptonicPFIso() / ept;
+      //Float_t eiso = goodElectrons[ielectron].SemileptonicPFIso() / ept;
       Float_t eiso = goodElectrons[ielectron].relIsoWithDBeta();
       ll_pair pair = {imuon, reliso, mupt, ielectron, eiso, ept, dR};
 
-      
-      //      std::cout << "Pair : muon " << imuon << " : pT = " <<  mupt << ", eta = " << goodMuons[imuon].eta() << ", phi = " << goodMuons[imuon].phi() << ", reliso = " << reliso << std::endl;
-      //      std::cout << "Pair : elec " << ielectron << " : pT = " <<  ept << ", eta = " << goodElectrons[ielectron].eta() << ", phi = " << goodElectrons[ielectron].phi() << ", reliso = " << eiso << std::endl;
-
-      //      std::cout << "MARK : run, lumi, event = " <<  m_eventInfo.runNumber << " " << m_eventInfo.lumiBlock << " " << m_eventInfo.eventNumber << std::endl;
-      bool isMatch = TrigMatch(goodMuons[imuon], goodElectrons[ielectron], m_eventInfo.runNumber);
-      //bool isMatch = true;
-      if(isMatch==false) continue;
+      //bool isMatch = TrigMatch(goodMuons[imuon], goodElectrons[ielectron], m_eventInfo.runNumber);
+      //if(isMatch==false) continue;
 
       emu_pair.push_back(pair);
     }
   }
-    
+  
   if(emu_pair.size()==0){
     throw SError( SError::SkipEvent );
   }
@@ -721,11 +710,8 @@ void TauTauAnalysis::ExecuteEvent( const SInputData&, Double_t ) throw( SError )
       m_BTaggingScaleTool.fillEfficiencies(goodJetsAK4); // to measure b tag efficiencies for our selections
     }
     
-    // if(isMatch){
-    // FillBranches( "emu", goodJetsAK4, goodElectrons[emu_pair[0].olepton], goodMuons[emu_pair[0].ilepton], Met, PuppiMet );//, MvaMet);
     FillBranches( "emu", goodMuons[emu_pair[0].ilepton], goodElectrons[emu_pair[0].olepton], goodJetsAK4, Met, PuppiMet );//, MvaMet);
     e_mu++;
-    // }
     
   }
   
@@ -743,11 +729,11 @@ bool TauTauAnalysis::isGoodEvent(int runNumber, int lumiSection) {
   bool isGood = true;
   if (m_isData) {
     isGood = m_grl.HasRunLumiBlock( runNumber, lumiSection );
-    if( !isGood ) {
-      m_logger << WARNING << "Bad event! Run: " << runNumber <<  " - Lumi Section: " << lumiSection << SLogger::endmsg;
-      // throw SError( SError::SkipEvent );
-    }
-    else m_logger << VERBOSE << "Good event! Run: " << runNumber <<  " - Lumi Section: " << lumiSection << SLogger::endmsg;
+    //if( !isGood ) {
+      //m_logger << WARNING << "Bad event! Run: " << runNumber <<  " - Lumi Section: " << lumiSection << SLogger::endmsg;
+      //throw SError( SError::SkipEvent );
+    //}
+    //else m_logger << VERBOSE << "Good event! Run: " << runNumber <<  " - Lumi Section: " << lumiSection << SLogger::endmsg;
   }
   
   return isGood;
@@ -759,303 +745,26 @@ bool TauTauAnalysis::isGoodEvent(int runNumber, int lumiSection) {
 
 
 TString TauTauAnalysis::passTrigger() {
-  //std::cout << "TauTauAnalysis" << std::endl;
-  // m_eventInfo.runNumber = 1 for MC
+  //std::cout << "TauTauAnalysis::passTrigger" << std::endl;
   
   // triggerFlag = mt22-mt24-mtx-mt-et25-et45-etx-et-e12mu23-e23mu8-em-
   std::string triggerFlags = ""; // std::to_string(pt)
-
   for (std::map<std::string,bool>::iterator it = (m_eventInfo.trigDecision)->begin(); it != (m_eventInfo.trigDecision)->end(); ++it){
-        
-    // emu
-    for (unsigned int t = 0; t < m_triggerNames_emu.size(); ++t ){
-      if ((it->first).find(m_triggerNames_emu[t]) != std::string::npos) {
-	
-	if (it->second == true){
-
-          if((it->first).find("Mu23") != std::string::npos and 
-	     (it->first).find("Ele12")   != std::string::npos and
-	     triggerFlags.find("e12m23") == std::string::npos){
-	    triggerFlags += "e12m23-"; 
-	  }
-
-          else if( (it->first).find("Mu8")  != std::string::npos and 
-		   (it->first).find("Ele23")   != std::string::npos and
-		   triggerFlags.find("e23m8")  == std::string::npos){ 
-	    triggerFlags += "e23m8-";  
-	  }else if(triggerFlags.find("em-") == std::string::npos ){ 
-	    triggerFlags += "em-";      
-	  }
-	}
-      }
-    }
-  }
-
-
+    if (it->second){ 
+      
+      // mutau
+      for( auto const& trigger: m_triggers_mutau ){
+        if ((it->first).find(trigger) != std::string::npos){
+          //std::cout << trigger->name << ": " << it->first << std::endl;
+          triggerFlags += "mt24";
+      }}
+          
+  }}
   
   if( triggerFlags == "" ) triggerFlags = "none";
   return triggerFlags;
   
 }
-
-
-
-//
-//TString TauTauAnalysis::passTrigger() {
-////   std::cout << "TauTauAnalysis" << std::endl;
-//  
-//  bool flag_trigger = false;
-//
-//  for (std::map<std::string,bool>::iterator it = (m_eventInfo.trigDecision)->begin(); it != (m_eventInfo.trigDecision)->end(); ++it){
-//    for (unsigned int t = 0; t < m_triggerNames_emu.size(); ++t ){
-//      if ((it->first).find(m_triggerNames_emu[t]) != std::string::npos) {
-//        if (it->second == true) {
-//          m_logger << VERBOSE << "Trigger pass: " << (it->first) << SLogger::endmsg;
-//	  flag_trigger = true;
-//	      //return true;
-//        }
-//      }
-//    }
-//  }
-//
-//
-//  if(flag_trigger == true) return "pass";
-//
-//  return "none";
-//  
-//}
-
-bool TauTauAnalysis::TrigMatch(const UZH::Muon& muon, const UZH::Electron& electron, int runnumber){
-
-  //  std::cout << std::endl;
-  //  std::cout << "========================================================" << std::endl;
-  //  std::cout << "run number : " << runnumber << std::endl;
-  //  std::cout << "muon (pt, eta, phi) = " << muon.pt() << " " <<  muon.eta() << " "<< muon.phi() << " iso = " << muon.SemileptonicPFIso() << std::endl;
-  //  std::cout << "electron (pt, eta, phi) = " << electron.pt() << " " <<  electron.eta() << " "<< electron.phi() << " iso = " << electron.relIsoWithDBeta() << std::endl;
-
-  bool flag_match = false;
-
-  for (std::map<std::string,bool>::iterator it = (m_eventInfo.trigDecision)->begin(); it != (m_eventInfo.trigDecision)->end(); ++it){
-
-    if (it->second == false) continue;
-    //    std::cout << "-----------------------------------------" << std::endl;
-    //    std::cout << "\t HLT fired : " << (it->first) << ", is it fired = " << it->second << std::endl;
-    //    std::cout << "-----------------------------------------" << std::endl;
-    
-    for (unsigned int t = 0; t < m_triggerNames_emu.size(); ++t ){
-
-      if ((it->first).find(m_triggerNames_emu[t]) != std::string::npos) {
-
-	if(
-	   (it->first).find("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v") != std::string::npos ||
-	   (it->first).find("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v") != std::string::npos
-	   ){
-
-	  bool flag_eleg = false;
-	  bool flag_muleg = false;
-	  bool flag_e_dz = false;
-	  bool flag_mu_dz = false;
-	  
-	  for(unsigned int index = 0; index < m_eventInfo.trigObject_eta->size(); index++){
-	    
-	    std::string trig_name = m_eventInfo.trigObject_lastname->at(index);		  
-	    Float_t trig_eta = m_eventInfo.trigObject_eta->at(index);
-	    Float_t trig_phi = m_eventInfo.trigObject_phi->at(index);
-	    Float_t dr_mu = deltaR(muon.eta() - trig_eta, deltaPhi(muon.phi(), trig_phi));
-	    Float_t dr_e = deltaR(electron.eta() - trig_eta, deltaPhi(electron.phi(), trig_phi));
-	    
-	    //	    std::cout << "\t\t trig object : " << m_eventInfo.trigObject_lastname->at(index) << " (eta,phi) = " << trig_eta <<  " "  << trig_phi << " ===> dr(mu) = " << dr_mu << ", dr(e) = "  << dr_e << std::endl;
-	    
-	    // check filters
-
-	    for(std::map<std::string, std::vector<std::string>>::iterator it2 = (m_eventInfo.trigObject_filterLabels)->begin(); it2 != (m_eventInfo.trigObject_filterLabels)->end(); ++it2){
-	      if(it2->first != trig_name) continue;
-	      
-	      // Filters
-	      for(unsigned int ifilter=0; ifilter < it2->second.size(); ifilter++){
-//		if(it2->second.at(ifilter) == "hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter" || 
-//		   it2->second.at(ifilter) == "hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8" || 		   
-//		   it2->second.at(ifilter) == "hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZFilter"
-//		   ){
-//
-//		  std::cout << "\t\t\t Mu8Ele23 filter : " << ifilter << " " << it2->second.at(ifilter) << std::endl;
-//
-//		}
-		
-		if(it2->second.at(ifilter) == "hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter" && dr_e < 0.5 && electron.pt() > 24) flag_eleg = true;
-		if(it2->second.at(ifilter) == "hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8" && dr_mu < 0.5) flag_muleg = true;
-		if(it2->second.at(ifilter) == "hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZFilter" && dr_e < 0.5) flag_e_dz = true;
-		if(it2->second.at(ifilter) == "hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZFilter" && dr_mu < 0.5) flag_mu_dz = true;
-	      }
-	    }
-	  }
-
-	  //	  std::cout << "\t\t\t\t flag_eleg (" << flag_eleg << "), flag_muleg (" << flag_muleg << "), flag_e_dz (" << flag_e_dz <<  "), flag_mu_dz (" << flag_mu_dz  << ")  : m_isData = " << m_isData << std::endl;
-
-
-	  if(m_isData){
-	    if(runnumber < 278820 && flag_eleg == true && flag_muleg == true) flag_match = true;
-	    if(runnumber >= 278820 && flag_eleg == true && flag_muleg == true && flag_e_dz == true && flag_mu_dz == true) flag_match = true;
-	    //	    if(flag_eleg == true && flag_muleg == true) flag_match = true;
-	  }else{
-	    if(flag_eleg == true && flag_muleg == true) flag_match = true;
-	  }
-	}
-	
-	
-	
-	if(
-	   (it->first).find("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v") != std::string::npos || 
-	   (it->first).find("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v") != std::string::npos
-	   ){
-	  
-	  bool flag_eleg = false;
-	  bool flag_muleg = false;
-	  bool flag_e_dz = false;
-	  bool flag_mu_dz = false;
-	  
-	  for(unsigned int index = 0; index < m_eventInfo.trigObject_eta->size(); index++){
-	    
-	    std::string trig_name = m_eventInfo.trigObject_lastname->at(index);
-	    Float_t trig_eta = m_eventInfo.trigObject_eta->at(index);
-	    Float_t trig_phi = m_eventInfo.trigObject_phi->at(index);
-	    Float_t dr_mu = deltaR(muon.eta() - trig_eta, deltaPhi(muon.phi(), trig_phi));
-	    Float_t dr_e = deltaR(electron.eta() - trig_eta, deltaPhi(electron.phi(), trig_phi));
-	    
-	    //	    std::cout << "\t\t trig object : " << m_eventInfo.trigObject_lastname->at(index) << " (eta,phi) = " << trig_eta <<  " "  << trig_phi << " ===> dr(mu) = " << dr_mu << ", dr(e) = "  << dr_e << std::endl;
-	    
-	    for(std::map<std::string, std::vector<std::string>>::iterator it2 = (m_eventInfo.trigObject_filterLabels)->begin(); it2 != (m_eventInfo.trigObject_filterLabels)->end(); ++it2){
-	      if(it2->first != trig_name) continue;
-	      
-	      // Filters
-	      for(unsigned int ifilter=0; ifilter < it2->second.size(); ifilter++){
-
-//		if(it2->second.at(ifilter) == "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter" || 
-//		   it2->second.at(ifilter) == "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered23" || 
-//		   it2->second.at(ifilter) == "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZFilter"
-//		   ){
-//		  
-//		  std::cout << "\t\t\t Mu8Ele23 filter : " << ifilter << " " << it2->second.at(ifilter) << std::endl;
-//		}
-
-		if(it2->second.at(ifilter) == "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter" && dr_e < 0.5) flag_eleg = true;
-		if(it2->second.at(ifilter) == "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered23" && dr_mu < 0.5 && muon.pt() > 24) flag_muleg = true;
-		if(it2->second.at(ifilter) == "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZFilter" && dr_e < 0.5) flag_e_dz = true;
-		if(it2->second.at(ifilter) == "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZFilter" && dr_mu < 0.5) flag_mu_dz = true;
-		
-	      }
-	    }	    
-	  }
-	  //	  std::cout << "\t\t\t\t flag_eleg (" << flag_eleg << "), flag_muleg (" << flag_muleg << "), flag_e_dz (" << flag_e_dz << "), flag_mu_dz (" << flag_mu_dz  << ")  : m_isData = " << m_isData << std::endl;
-	  if(m_isData){
-	    if(runnumber < 278820 && flag_eleg == true && flag_muleg == true) flag_match = true;
-	    if(runnumber >= 278820 && flag_eleg == true && flag_muleg == true && flag_e_dz == true && flag_mu_dz == true) flag_match = true;
-	    //	    if(flag_eleg == true && flag_muleg == true) flag_match = true;
-	  }else{
-	    if(flag_eleg == true && flag_muleg == true) flag_match = true;
-	  }
-	}
-      }
-    }
-  }
-  
-  //  std::cout << " =====================> trig matching -> " << flag_match << std::endl;
-  //  std::cout << std::endl;
-
-  return flag_match;
-  
-  
-}
-
-
-
-
-//bool TauTauAnalysis::TrigMatchCheck(){
-//  
-//  bool flag_match = false;
-//  
-//  for (std::map<std::string,bool>::iterator it = (m_eventInfo.trigDecision)->begin(); it != (m_eventInfo.trigDecision)->end(); ++it){
-//    //    std::cout << (it->first) << " " << (it->second) << std::endl;
-//    
-//    for(unsigned int index = 0; index < m_eventInfo.trigObject_eta->size(); index++){
-//      
-//      std::cout << (it->first) << " " << index << " " << m_eventInfo.trigObject_eta->at(index) << " "  << m_eventInfo.trigObject_phi->at(index) << " " << m_eventInfo.trigObject_lastname->at(index) << std::endl;
-//      
-//      std::string trig_name = m_eventInfo.trigObject_lastname->at(index);
-//      Float_t trig_eta = m_eventInfo.trigObject_eta->at(index);
-//      Float_t trig_phi = m_eventInfo.trigObject_phi->at(index);
-//      
-//
-//      for(std::map<std::string, std::vector<std::string>>::iterator it2 = (m_eventInfo.trigObject_filterLabels)->begin(); it2 != (m_eventInfo.trigObject_filterLabels)->end(); ++it2){
-//	if(it2->first != trig_name) continue;
-//
-//	// Filters
-//	for(unsigned int ifilter=0; ifilter < it2->second.size(); ifilter++){
-//	    std::cout << "filter : " << ifilter << " " << it2->second.at(ifilter) << std::endl;
-//	}
-//	
-//	  
-//      }
-//	    
-//      
-//    }
-//  }
-//  
-//  return true;
-//  
-//}
-
-
-
-
-
-bool TauTauAnalysis::passMETFilters() {
-  //std::cout << "passMETFilters" << std::endl;
-  
-  bool passMetFilters = true;
-  
-  // using only what's recommended in https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2
-  if( !(m_eventInfo.PV_filter) ) {
-    passMetFilters = false;
-    m_logger << VERBOSE << "PV_filter" << SLogger::endmsg;
-  }
-  if( !(m_eventInfo.passFilter_CSCHalo) ) {
-    passMetFilters = false;
-    m_logger << VERBOSE << "passFilter_CSCHalo" << SLogger::endmsg;
-  }
-  if( !(m_eventInfo.passFilter_HBHELoose) ) {
-    passMetFilters = false;
-    m_logger << VERBOSE << "passFilter_HBHELoose" << SLogger::endmsg;
-  }
-  if( !(m_eventInfo.passFilter_HBHEIso) ) {
-    passMetFilters = false;
-    m_logger << VERBOSE << "passFilter_HBHEIso" << SLogger::endmsg;
-  }
-  if( !(m_eventInfo.passFilter_EEBadSc) ) {
-    passMetFilters = false;
-    m_logger << VERBOSE << "passFilter_EEBadSc" << SLogger::endmsg;
-  }
- 
-  if( !(m_eventInfo.passFilter_globalTightHalo2016) ){
-    passMetFilters = false;
-    m_logger << VERBOSE << "passFilter_EEBadSc" << SLogger::endmsg;
-  }
-
-  if( !(m_eventInfo.passFilter_chargedHadronTrackResolution) ){
-    passMetFilters = false;
-    m_logger << VERBOSE << "passFilter_EEBadSc" << SLogger::endmsg;
-  }
-
-  if( !(m_eventInfo.passFilter_muonBadTrack) ) {        
-    passMetFilters = false;
-    m_logger << VERBOSE << "passFilter_EEBadSc" << SLogger::endmsg;
-  } 
-  
-  return passMetFilters;
-  
-}
-
-
 
 
 
@@ -1065,14 +774,14 @@ void TauTauAnalysis::getEventWeight() {
   double weight = 1.;
   b_npu_ = -1.;
   for( unsigned int v = 0; v < (m_eventInfo.actualIntPerXing)->size(); ++v ){
-    
     if ( (*m_eventInfo.bunchCrossing)[v] == 0 ) {
       b_npu_ = (*m_eventInfo.actualIntPerXing)[v]; // averageIntPerXing
+      if(b_npu_<0){ std::cout<<"Warning!!! b_npu_"<<b_npu_<<"<0"<<std::endl; break; }
       b_puweight_ = m_PileupReweightingTool.getPileUpweight( b_npu_ );
-      if(m_doJEC){
-          b_puweight_Up_   = m_PileupReweightingTool.getPileUpweight( b_npu_, +1 );
-          b_puweight_Down_ = m_PileupReweightingTool.getPileUpweight( b_npu_, -1 );
-      }
+      //if(m_doJEC){
+      //  b_puweight_Up_   = m_PileupReweightingTool.getPileUpweight( b_npu_, +1 );
+      //  b_puweight_Down_ = m_PileupReweightingTool.getPileUpweight( b_npu_, -1 );
+      //}
       break;
     }
   }
@@ -1134,8 +843,7 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   b_q_2[ch]                 = electron.charge();
   b_d0_2[ch]                = electron.d0();
   b_dz_2[ch]                = electron.dz();
-  //b_iso_2[ch]             = electron.SemileptonicPFIso() / electron.tlv().Pt();
-  b_iso_2[ch]               = electron.relIsoWithDBeta();
+  b_iso_2[ch]               = electron.relIsoWithDBeta(); //electron.SemileptonicPFIso() / electron.tlv().Pt();
   
   b_id_e_mva_nt_loose_1[ch] = -1;
   extraLeptonVetos(channel, muon, electron);
@@ -1156,6 +864,60 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   b_channel[ch]             = 1;
   TLorentzVector muon_tlv;
   muon_tlv.SetPtEtaPhiM(b_pt_1[ch], b_eta_1[ch], b_phi_1[ch], b_m_1[ch]);
+  
+  
+  
+  ////////////////
+  // MARK: Taus //
+  ////////////////
+  
+  float maxIso = -1.;
+  int maxIndex = -1;
+  for(int i=0; i<(m_tau.N); ++i){
+    UZH::Tau tau( &m_tau, i );
+    if(tau.byIsolationMVArun2v1DBnewDMwLTraw()<maxIso) continue;
+    if(tau.TauType() != 1) continue; // 1 for standard ID, 2 for boosted ID
+    if(fabs(tau.dz()) > m_tauDzCut) continue;
+    if(tau.decayModeFinding() < 0.5) continue; //and mytau.decayMode()!=11
+    if(fabs(tau.charge()) != 1) continue; // remove for boosted ID
+    if(tau.againstElectronVLooseMVA6() < 0.5 or tau.againstMuonTight3() < 0.5) continue; // needs SFs!
+    maxIndex = i;
+    maxIso   = tau.byIsolationMVArun2v1DBnewDMwLTraw();
+  }
+  if(maxIndex>0){
+    UZH::Tau tau( &m_tau, maxIndex );
+    b_byIsolationMVA3oldDMwLTraw_3_3[ch]                = tau.byIsolationMVArun2v1DBoldDMwLTraw();
+    b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch]         = tau.byLooseIsolationMVArun2v1DBoldDMwLT();
+    b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch]        = tau.byMediumIsolationMVArun2v1DBoldDMwLT();
+    b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch]         = tau.byTightIsolationMVArun2v1DBoldDMwLT();
+    b_byVTightIsolationMVArun2v1DBoldDMwLT_3[ch]        = tau.byVTightIsolationMVArun2v1DBoldDMwLT();
+    b_byVVTightIsolationMVArun2v1DBoldDMwLT_3[ch]       = tau.byVVTightIsolationMVArun2v1DBoldDMwLT();
+    b_byCombinedIsolationDeltaBetaCorrRaw3Hits_3[ch]    = tau.byCombinedIsolationDeltaBetaCorrRaw3Hits();
+    b_byLooseCombinedIsolationDeltaBetaCorr3Hits_3[ch]  = tau.byLooseCombinedIsolationDeltaBetaCorr3Hits();
+    b_byMediumCombinedIsolationDeltaBetaCorr3Hits_3[ch] = tau.byMediumCombinedIsolationDeltaBetaCorr3Hits();
+    b_byTightCombinedIsolationDeltaBetaCorr3Hits_3[ch]  = tau.byTightCombinedIsolationDeltaBetaCorr3Hits();
+    b_pt_3[ch]                                          = tau.tlv().Pt();
+    b_eta_3[ch]                                         = tau.tlv().Eta();
+    b_decayMode_3[ch]                                   = tau.decayMode(); // 0, 1, 10
+    if(m_isData) b_gen_match_3[ch] = -1;
+    else         b_gen_match_3[ch] = genMatch(tau.eta(),tau.phi());
+    // TODO: againstLepton SFs!
+  }else{
+    b_byIsolationMVA3oldDMwLTraw_3_3[ch]                = -9;
+    b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch]         = -1;
+    b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch]        = -1;
+    b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch]         = -1;
+    b_byVTightIsolationMVArun2v1DBoldDMwLT_3[ch]        = -1;
+    b_byVVTightIsolationMVArun2v1DBoldDMwLT_3[ch]       = -1;
+    b_byCombinedIsolationDeltaBetaCorrRaw3Hits_3[ch]    = -9;
+    b_byLooseCombinedIsolationDeltaBetaCorr3Hits_3[ch]  = -1;
+    b_byMediumCombinedIsolationDeltaBetaCorr3Hits_3[ch] = -1;
+    b_byTightCombinedIsolationDeltaBetaCorr3Hits_3[ch]  = -1;
+    b_pt_3[ch]                                          = -1;
+    b_eta_3[ch]                                         = -9;
+    b_decayMode_3[ch]                                   = -1;
+    b_gen_match_3[ch]                                   = -1;
+  }  
   
   
   
@@ -1299,11 +1061,10 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   else{
     b_gen_match_1[ch]               = genMatch(b_eta_1[ch], b_phi_1[ch]);
     b_gen_match_2[ch]               = genMatch(b_eta_2[ch], b_phi_2[ch]);
-    
-    b_trigweight_1[ch]              = m_ScaleFactorTool.get_ScaleFactor_EleMuTrig(b_pt_2[ch], fabs(b_eta_2[ch]), muon_tlv.Pt(),fabs(muon_tlv.Eta()), m_trigger_Flags);
-    b_trigweight_or_1[ch]           = m_ScaleFactorTool.get_ScaleFactor_EleMuTrig_OR(b_pt_2[ch], fabs(b_eta_2[ch]), muon_tlv.Pt(),fabs(muon_tlv.Eta()));
-    b_idisoweight_1[ch]             = m_ScaleFactorTool.get_ScaleFactor_MuIdIso(muon_tlv.Pt(),fabs(muon_tlv.Eta()));
-    b_idisoweight_2[ch]             = m_ScaleFactorTool.get_ScaleFactor_EleIdIso(b_pt_2[ch], fabs(b_eta_2[ch]));
+    //b_trigweight_1[ch]              = m_ScaleFactorTool.get_ScaleFactor_EleMuTrig(b_pt_2[ch], fabs(b_eta_2[ch]), muon_tlv.Pt(),fabs(muon_tlv.Eta()), m_trigger_Flags);
+    //b_trigweight_or_1[ch]           = m_ScaleFactorTool.get_ScaleFactor_EleMuTrig_OR(b_pt_2[ch], fabs(b_eta_2[ch]), muon_tlv.Pt(),fabs(muon_tlv.Eta()));
+    //b_idisoweight_1[ch]             = m_ScaleFactorTool.get_ScaleFactor_MuIdIso(muon_tlv.Pt(),fabs(muon_tlv.Eta()));
+    //b_idisoweight_2[ch]             = m_ScaleFactorTool.get_ScaleFactor_EleIdIso(b_pt_2[ch], fabs(b_eta_2[ch]));
     if(m_doZpt)  b_zptweight[ch]    = m_RecoilCorrector.ZptWeight( boson_tlv.M(), boson_tlv.Pt() );
     if(m_doTTpt) b_ttptweight[ch]   = genMatchSF(channel, -36); // 6*-6 = -36
     b_weightbtag[ch]                = b_weightbtag_; // do not apply b tag weight when using promote-demote method !!!

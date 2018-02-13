@@ -16,6 +16,8 @@
 #include "../NtupleVariables/include/Electron.h"
 #include "../NtupleVariables/include/MuonNtupleObject.h"
 #include "../NtupleVariables/include/Muon.h"
+#include "../NtupleVariables/include/TauNtupleObject.h"
+#include "../NtupleVariables/include/Tau.h"
 #include "../NtupleVariables/include/MissingEtNtupleObject.h"
 #include "../NtupleVariables/include/MissingEt.h"
 #include "../NtupleVariables/include/GenParticleNtupleObject.h"
@@ -28,9 +30,6 @@
 #include "../RecoilCorrections/interface/RecoilCorrector.h"
 #include "../SVFitTools/interface/SVFitTool.h"
 #include "../SVFitTools/interface/SVfitStandaloneAlgorithm.h"
-//#include "../SVFit/include/NSVfitStandaloneAlgorithm.h"
-//#include "../SVfitStandalone/interface/SVfitStandaloneAlgorithm.h"
-//#include "../SVfitStandalone/interface/SVfitStandaloneLikelihood.h"
 #include "../JetCorrectionTool/interface/JetCorrectionTool.h"
 
 // ROOT include(s):
@@ -52,6 +51,7 @@ namespace UZH {
   class Jet;
   class Electron;
   class Muon;
+  class Tau;
   class MissingEt;
   class GenParticle;
 }
@@ -72,15 +72,14 @@ class TauTauAnalysis : public SCycleBase {
   
     // enumeration of all cut flags
     typedef enum {
-      kBeforeCuts,            // C0
-      kJSON,                  // C1
-      kTrigger,               // C2
-      kMetFilters,            // C3
-      kLepton,                // C4
-      kOtherLepton,           // C5
-      kLepLep,                // C6
-      kBeforeCutsWeighted,    // C7
-      kNumCuts                // last!
+      kBeforeCuts,              // C0
+      kJSON,                    // C1
+      kTrigger,                 // C2
+      kLepton,                  // C3
+      kOtherLepton,             // C4
+      kLepLep,                  // C5
+      kBeforeCutsWeighted,      // C6
+      kNumCuts                  // last!
     } SelectionCuts;
   
     // static array of all cut names
@@ -88,11 +87,10 @@ class TauTauAnalysis : public SCycleBase {
       "BeforeCuts",             // C0
       "JSON",                   // C1
       "Trigger",                // C2
-      "MetFilters",             // C3
-      "Lepton",                 // C4
-      "OtherLepton",            // C5
-      "LepLep",                 // C6
-      "BeforeCutsWeighted",     // C7
+      "Lepton",                 // C3
+      "OtherLepton",            // C4
+      "LepLep",                 // C5
+      "BeforeCutsWeighted",     // C6
     };
     
     
@@ -111,26 +109,19 @@ class TauTauAnalysis : public SCycleBase {
     
     
     /// Function to book tree branches
-    //virtual void FillBranches(const std::string& channel,  const std::vector<UZH::Jet>& Jet, const UZH::Tau& tau, const  TLorentzVector& lepton, const UZH::MissingEt& met );
     virtual void FillBranches( const std::string& channel,
                                const UZH::Muon& muon,      const UZH::Electron& electron,
-                               std::vector<UZH::Jet>& Jets, UZH::MissingEt& met, UZH::MissingEt& puppimet );//, const UZH::MissingEt& mvamet=NULL);
+                               std::vector<UZH::Jet>& Jets, UZH::MissingEt& met, UZH::MissingEt& puppimet );
     virtual void FillJetBranches(  const char* ch, std::vector<UZH::Jet>& Jets, UZH::MissingEt& met,
                                    const TLorentzVector& muon_tlv, const TLorentzVector& electron_tlv );
     virtual void FillJetBranches_JEC( Float_t& jpt, Float_t& jeta, const TLorentzVector& jet, bool save=true );
     
     // check pass of triggers / MET filters
-    //virtual TString passTrigger( int runNumber, int lumiSection );
     virtual TString passTrigger();
-    virtual bool TrigMatch(const UZH::Muon& muon, const UZH::Electron& electron, int runnumber);
-    //virtual bool TrigMatchCheck();
-    virtual bool passMETFilters();
+    //virtual bool TrigMatch(const UZH::Muon& muon, const UZH::Electron& electron, int runnumber);
     
     // obtain event weights for MC
     virtual void getEventWeight();
-    
-    // GenFilter to select Z to tautau events
-    //virtual void genFilterZtautau();
     
     // set tlv of generator boson for recoil corrections
     virtual void setGenBosonTLVs();
@@ -174,9 +165,9 @@ class TauTauAnalysis : public SCycleBase {
     Ntuple::GenJetak4NtupleObject   m_genJetAK4;      ///< Gen jet container
     Ntuple::ElectronNtupleObject    m_electron;       ///< electron container
     Ntuple::MuonNtupleObject        m_muon;           ///< muon container
+    Ntuple::TauNtupleObject         m_tau;            ///< tau container
     Ntuple::MissingEtNtupleObject   m_missingEt;      ///< missing E_T container
     Ntuple::MissingEtNtupleObject   m_puppimissingEt; ///< missing E_T container
-    //Ntuple::MissingEtNtupleObject   m_mvamissingEt;   ///< missing E_T container
     Ntuple::GenParticleNtupleObject m_genParticle;    ///< gen particle container
     
     
@@ -192,11 +183,6 @@ class TauTauAnalysis : public SCycleBase {
     JetCorrectionTool       m_JetCorrectionTool;
     SVFitTool               m_SVFitTool;
     
-    //TLorentzVector applySVFitSemileptonic (float cov00, float cov10, float cov11, float met, float met_phi, TLorentzVector lep1 , TLorentzVector lep2);
-    //TLorentzVector applySVFitHadronic     (float cov00, float cov10, float cov11, float met, float met_phi, TLorentzVector lep1 , TLorentzVector lep2);
-    //TLorentzVector applySVFit             (float cov00, float cov10, float cov11, float met, float met_phi, TLorentzVector lep1 , TLorentzVector lep2);
-    //float applySVFit(float cov00, float cov10, float cov11, float met, float met_phi, TLorentzVector lep1 , TLorentzVector lep2, const std::string& channel);
-    
     void extraLeptonVetos(const std::string& channel, const UZH::Muon& muon, const UZH::Electron& electron);
     
     // naming
@@ -208,6 +194,7 @@ class TauTauAnalysis : public SCycleBase {
     std::string m_genJetAK4Name;        ///< name of gen AK4 jet collection in tree with reconstructed objects
     std::string m_electronName;         ///< name of electron collection in tree with reconstructed objects
     std::string m_muonName;             ///< name of muon collection in tree with reconstructed objects
+    std::string m_tauName;              ///< name of tau collection in tree with reconstructed objects
     std::string m_missingEtName;        ///< name of missing E_T collection in tree with reconstructed objects
     std::string m_genParticleName;      ///< name of gen particle collection in tree with reconstructed objects
   
@@ -223,16 +210,16 @@ class TauTauAnalysis : public SCycleBase {
     double    m_EESshift;
     double    m_EESshiftEndCap;
     bool      m_doJEC;
-
+    
     ///
     /// CUTS
     ///
-     
+    
     // jet
-    double    m_jetPtCut;         ///< cut on jet pT
-    double    m_jetEtaCut;        ///< cut on jet eta
-    double    m_AK4jetPtCut;      ///< cut on jet pT
-    double    m_AK4jetEtaCut;     ///< cut on jet eta
+    double    m_jetPtCut;
+    double    m_jetEtaCut;
+    double    m_AK4jetPtCut;
+    double    m_AK4jetEtaCut;
     double    m_CSVWorkingPoint;
     
     // b-tagging
@@ -252,31 +239,24 @@ class TauTauAnalysis : public SCycleBase {
     double    m_muonDzCut;
     double    m_muonIsoCut;
     
-    // leptons = muons and electrons
-    double    m_leptonPtCut;
-    double    m_leptonEtaCut;
+    // taus
+    double    m_tauPtCut;
+    double    m_tauEtaCut;
+    double    m_tauDzCut;
     
     // MET
     double    m_metCut;
     
     
-    ///
-    /// FILE NAME
-    ///
-    
     std::string m_jsonName;
-    //std::string m_TrigSF_muonName;
-    //std::string m_IDSF_muonName;
-    //std::string m_IsoSF_muonName;
-    //std::string m_IDSF_eleName;
-
+    
     // other variables needed
-    std::vector<std::string> m_triggerNames_emu_mc;
-    std::vector<std::string> m_triggerNames_emu_data;
-    std::vector<std::string> m_triggerNames_emu;
+    std::vector<std::string> m_triggers_mutau;
+    std::vector<std::string> m_triggers_emu;
     std::string m_trigger_Flags;
     
     int e_mu;
+    
     
     
     ///
@@ -316,16 +296,15 @@ class TauTauAnalysis : public SCycleBase {
     std::map<std::string,Float_t>  b_puweight_Up;
     std::map<std::string,Float_t>  b_puweight_Down;
     std::map<std::string,Float_t>  b_weightbtag;
-    //std::map<std::string,Float_t>  b_genmatchweight;
     std::map<std::string,Float_t>  b_zptweight;
     std::map<std::string,Float_t>  b_ttptweight;
     std::map<std::string,Float_t>  b_ttptweight_runI;
     std::map<std::string,Float_t>  b_trigweight_1;
     std::map<std::string,Float_t>  b_trigweight_or_1;
     std::map<std::string,Float_t>  b_idisoweight_1;
-    std::map<std::string,Int_t>    b_trigweight_2;
+    std::map<std::string,Float_t>  b_trigweight_2;
     std::map<std::string,Float_t>  b_idisoweight_2;
-    
+        
     std::map<std::string,Int_t>    b_run;
     std::map<std::string,Int_t>    b_evt;
     std::map<std::string,Int_t>    b_lum;
@@ -425,6 +404,22 @@ class TauTauAnalysis : public SCycleBase {
     std::map<std::string,Float_t>  b_iso_2;
     std::map<std::string,Float_t>  b_iso_2_medium;
     std::map<std::string,Int_t>    b_gen_match_2;
+    
+    std::map<std::string,Float_t> b_pt_3;
+    std::map<std::string,Float_t> b_eta_3;
+    std::map<std::string,Int_t>   b_decayMode_3;
+    std::map<std::string,Int_t>   b_gen_match_3;
+    std::map<std::string,Float_t> b_byIsolationMVA3newDMwLTraw_3_3;
+    std::map<std::string,Float_t> b_byIsolationMVA3oldDMwLTraw_3_3;
+    std::map<std::string,Int_t>   b_byLooseIsolationMVArun2v1DBoldDMwLT_3;
+    std::map<std::string,Int_t>   b_byMediumIsolationMVArun2v1DBoldDMwLT_3;
+    std::map<std::string,Int_t>   b_byTightIsolationMVArun2v1DBoldDMwLT_3;
+    std::map<std::string,Int_t>   b_byVTightIsolationMVArun2v1DBoldDMwLT_3;
+    std::map<std::string,Int_t>   b_byVVTightIsolationMVArun2v1DBoldDMwLT_3;
+    std::map<std::string,Float_t> b_byCombinedIsolationDeltaBetaCorrRaw3Hits_3;
+    std::map<std::string,Int_t>   b_byLooseCombinedIsolationDeltaBetaCorr3Hits_3;
+    std::map<std::string,Int_t>   b_byMediumCombinedIsolationDeltaBetaCorr3Hits_3;
+    std::map<std::string,Int_t>   b_byTightCombinedIsolationDeltaBetaCorr3Hits_3;
     
     std::map<std::string,Int_t>    b_dilepton_veto;
     std::map<std::string,Int_t>    b_extraelec_veto;
