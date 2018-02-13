@@ -876,6 +876,8 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   for(int i=0; i<(m_tau.N); ++i){
     UZH::Tau tau( &m_tau, i );
     if(tau.byIsolationMVArun2v1DBoldDMwLTraw()<maxIso) continue;
+    if(abs(tau).pt() < m_tauPtCut) continue;
+    if(abs(tau).eta() > m_tauEtaCut) continue;
     if(tau.TauType() != 1) continue; // 1 for standard ID, 2 for boosted ID
     if(fabs(tau.dz()) > m_tauDzCut) continue;
     if(tau.decayModeFinding() < 0.5) continue; //and mytau.decayMode()!=11
