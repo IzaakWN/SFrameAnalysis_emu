@@ -210,6 +210,7 @@ class TauTauAnalysis : public SCycleBase {
     double    m_EESshift;
     double    m_EESshiftEndCap;
     bool      m_doJEC;
+    bool      m_MC_V1;
     
     ///
     /// CUTS
@@ -409,8 +410,9 @@ class TauTauAnalysis : public SCycleBase {
     std::map<std::string,Float_t> b_eta_3;
     std::map<std::string,Int_t>   b_decayMode_3;
     std::map<std::string,Int_t>   b_gen_match_3;
-    std::map<std::string,Float_t> b_byIsolationMVA3newDMwLTraw_3_3;
-    std::map<std::string,Float_t> b_byIsolationMVA3oldDMwLTraw_3_3;
+    std::map<std::string,Int_t>   b_againstLepton_3;
+    std::map<std::string,Float_t> b_byIsolationMVArun2v1DBoldDMwLTraw_3;
+    std::map<std::string,Float_t> b_byIsolationMVArun2v1DBnewDMwLTraw_3;
     std::map<std::string,Int_t>   b_byLooseIsolationMVArun2v1DBoldDMwLT_3;
     std::map<std::string,Int_t>   b_byMediumIsolationMVArun2v1DBoldDMwLT_3;
     std::map<std::string,Int_t>   b_byTightIsolationMVArun2v1DBoldDMwLT_3;

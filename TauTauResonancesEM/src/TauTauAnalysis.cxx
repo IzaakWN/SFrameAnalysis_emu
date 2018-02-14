@@ -51,6 +51,7 @@ TauTauAnalysis::TauTauAnalysis() : SCycleBase(),
   DeclareProperty( "EESshift",              m_EESshift              = 0.0               );
   DeclareProperty( "EESshiftEndCap",        m_EESshiftEndCap        = m_EESshift*2.5    );
   DeclareProperty( "doEES",                 m_doEES                 = m_EESshift != 0.0 );
+  DeclareProperty( "MC_V1",                 m_MC_V1                 = false             );
   
   DeclareProperty( "AK4JetPtCut",           m_AK4jetPtCut           = 20.               );
   DeclareProperty( "AK4JetEtaCut",          m_AK4jetEtaCut          = 4.7               );
@@ -193,6 +194,7 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
   m_doJEC = m_doJEC and !(m_doEES or m_isData);
   m_logger << INFO << "IsData:              " <<    (m_isData   ?   "TRUE" : "FALSE") << SLogger::endmsg;
   m_logger << INFO << "IsSignal:            " <<    (m_isSignal ?   "TRUE" : "FALSE") << SLogger::endmsg;
+  m_logger << INFO << "MC_V1:               " <<    (m_MC_V1    ?   "TRUE" : "FALSE") << SLogger::endmsg;
   m_logger << INFO << "doSVFit:             " <<    (m_doSVFit  ?   "TRUE" : "FALSE") << SLogger::endmsg;
   m_logger << INFO << "doRecoilCorr:        " <<    (m_doRecoilCorr ? "TRUE" : "FALSE") << SLogger::endmsg;
   m_logger << INFO << "doZpt:               " <<    (m_doZpt    ?   "TRUE" : "FALSE") << SLogger::endmsg;
@@ -214,20 +216,7 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
   m_logger << INFO << "MuonDzCut:           " <<    m_muonDzCut         << SLogger::endmsg;
   m_logger << INFO << "MuonIsoCut:          " <<    m_muonIsoCut        << SLogger::endmsg;
   
-  m_logger << INFO << "JSONName:            " <<    m_jsonName          << SLogger::endmsg;
-  
-  
-  if (!m_isData) m_PileupReweightingTool.BeginInputData( id );
-  
-  
-  if (m_isData) {
-    TObject* grl;
-    if( ! ( grl = GetConfigObject( "MyGoodRunsList" ) ) ) {
-      m_logger << FATAL << "Can't access the GRL!" << SLogger::endmsg;
-      throw SError( "Can't access the GRL!", SError::SkipCycle );
-    }
-    m_grl = *( dynamic_cast< Root::TGoodRunsList* >( grl ) );
-  }
+  m_logger << INFO << "JSONName:            " <<    m_jsonName          << SLogger::endmsg;  
   
   
   // MARK: Branches
@@ -303,8 +292,9 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
     DeclareVariable( b_eta_3[ch],               "eta_3",                treeName);
     DeclareVariable( b_decayMode_3[ch],         "decayMode_3",          treeName);
     DeclareVariable( b_gen_match_3[ch],         "gen_match_3",          treeName);
-    DeclareVariable( b_byIsolationMVA3oldDMwLTraw_3_3[ch],                "byIsolationMVA3oldDMwLTraw_3",                  treeName);
-    DeclareVariable( b_byIsolationMVA3newDMwLTraw_3_3[ch],                "byIsolationMVA3newDMwLTraw_3",                  treeName);
+    DeclareVariable( b_againstLepton_3[ch],     "againstLepton_3",      treeName);
+    DeclareVariable( b_byIsolationMVArun2v1DBoldDMwLTraw_3[ch],           "byIsolationMVArun2v1DBoldDMwLTraw_3",           treeName);
+    DeclareVariable( b_byIsolationMVArun2v1DBnewDMwLTraw_3[ch],           "byIsolationMVArun2v1DBnewDMwLTraw_3",           treeName);
     DeclareVariable( b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch],         "byLooseIsolationMVArun2v1DBoldDMwLT_3",         treeName);
     DeclareVariable( b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch],        "byMediumIsolationMVArun2v1DBoldDMwLT_3",        treeName);
     DeclareVariable( b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch],         "byTightIsolationMVArun2v1DBoldDMwLT_3",         treeName);
@@ -472,6 +462,16 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
     TString tch = ch;
     //std::cout << hname << " " << dirname << std::endl;
     Book( TH1F(hname, hname, 10, 0.5, 10.5 ), dirname);
+  }
+  
+  if (!m_isData) m_PileupReweightingTool.BeginInputData( id, m_MC_V1 );
+  else{
+    TObject* grl;
+    if( ! ( grl = GetConfigObject( "MyGoodRunsList" ) ) ) {
+      m_logger << FATAL << "Can't access the GRL!" << SLogger::endmsg;
+      throw SError( "Can't access the GRL!", SError::SkipCycle );
+    }
+    m_grl = *( dynamic_cast< Root::TGoodRunsList* >( grl ) );
   }
   
   m_BTaggingScaleTool.BeginInputData( id );
@@ -876,20 +876,29 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   for(int i=0; i<(m_tau.N); ++i){
     UZH::Tau tau( &m_tau, i );
     if(tau.byIsolationMVArun2v1DBoldDMwLTraw()<maxIso) continue;
-    if(abs(tau).pt() < m_tauPtCut) continue;
-    if(abs(tau).eta() > m_tauEtaCut) continue;
+    if(tau.DeltaR(electron)<0.5) continue;
+    if(tau.DeltaR(muon)<0.5) continue;
+    if(tau.pt() < m_tauPtCut) continue;
+    if(abs(tau.eta()) > m_tauEtaCut) continue;
     if(tau.TauType() != 1) continue; // 1 for standard ID, 2 for boosted ID
     if(fabs(tau.dz()) > m_tauDzCut) continue;
     if(tau.decayModeFinding() < 0.5) continue; //and mytau.decayMode()!=11
     if(fabs(tau.charge()) != 1) continue; // remove for boosted ID
-    if(tau.againstElectronVLooseMVA6() < 0.5 or tau.againstMuonTight3() < 0.5) continue; // needs SFs!
+    //if(tau.againstElectronVLooseMVA6() < 0.5 or tau.againstMuonTight3() < 0.5) continue; // same WPs as mutau; needs SFs!
     maxIndex = i;
     maxIso   = tau.byIsolationMVArun2v1DBoldDMwLTraw();
   }
   if(maxIndex>0){
     UZH::Tau tau( &m_tau, maxIndex );
-    b_byIsolationMVA3oldDMwLTraw_3_3[ch]                = tau.byIsolationMVArun2v1DBoldDMwLTraw();
-    b_byIsolationMVA3newDMwLTraw_3_3[ch]                = tau.byIsolationMVArun2v1DBnewDMwLTraw();
+    b_pt_3[ch]                                          = tau.tlv().Pt();
+    b_eta_3[ch]                                         = tau.tlv().Eta();
+    b_decayMode_3[ch]                                   = tau.decayMode(); // 0, 1, 10
+    b_againstLepton_3[ch]                               = tau.againstElectronVLooseMVA6() > 0.5 and tau.againstMuonTight3() > 0.5;
+    if(m_isData) b_gen_match_3[ch] = -1;
+    else         b_gen_match_3[ch] = genMatch(tau.eta(),tau.phi());
+    // TODO: againstLepton SFs!
+    b_byIsolationMVArun2v1DBoldDMwLTraw_3[ch]           = tau.byIsolationMVArun2v1DBoldDMwLTraw();
+    b_byIsolationMVArun2v1DBnewDMwLTraw_3[ch]           = tau.byIsolationMVArun2v1DBnewDMwLTraw();
     b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch]         = tau.byLooseIsolationMVArun2v1DBoldDMwLT();
     b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch]        = tau.byMediumIsolationMVArun2v1DBoldDMwLT();
     b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch]         = tau.byTightIsolationMVArun2v1DBoldDMwLT();
@@ -899,15 +908,14 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
     b_byLooseCombinedIsolationDeltaBetaCorr3Hits_3[ch]  = tau.byLooseCombinedIsolationDeltaBetaCorr3Hits();
     b_byMediumCombinedIsolationDeltaBetaCorr3Hits_3[ch] = tau.byMediumCombinedIsolationDeltaBetaCorr3Hits();
     b_byTightCombinedIsolationDeltaBetaCorr3Hits_3[ch]  = tau.byTightCombinedIsolationDeltaBetaCorr3Hits();
-    b_pt_3[ch]                                          = tau.tlv().Pt();
-    b_eta_3[ch]                                         = tau.tlv().Eta();
-    b_decayMode_3[ch]                                   = tau.decayMode(); // 0, 1, 10
-    if(m_isData) b_gen_match_3[ch] = -1;
-    else         b_gen_match_3[ch] = genMatch(tau.eta(),tau.phi());
-    // TODO: againstLepton SFs!
   }else{
-    b_byIsolationMVA3oldDMwLTraw_3_3[ch]                = -9;
-    b_byIsolationMVA3newDMwLTraw_3_3[ch]                = -9;
+    b_pt_3[ch]                                          = -1;
+    b_eta_3[ch]                                         = -9;
+    b_decayMode_3[ch]                                   = -1;
+    b_againstLepton_3[ch]                               = -1;
+    b_gen_match_3[ch]                                   = -1;
+    b_byIsolationMVArun2v1DBoldDMwLTraw_3[ch]           = -9;
+    b_byIsolationMVArun2v1DBnewDMwLTraw_3[ch]           = -9;
     b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch]         = -1;
     b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch]        = -1;
     b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch]         = -1;
@@ -917,10 +925,6 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
     b_byLooseCombinedIsolationDeltaBetaCorr3Hits_3[ch]  = -1;
     b_byMediumCombinedIsolationDeltaBetaCorr3Hits_3[ch] = -1;
     b_byTightCombinedIsolationDeltaBetaCorr3Hits_3[ch]  = -1;
-    b_pt_3[ch]                                          = -1;
-    b_eta_3[ch]                                         = -9;
-    b_decayMode_3[ch]                                   = -1;
-    b_gen_match_3[ch]                                   = -1;
   }  
   
   
