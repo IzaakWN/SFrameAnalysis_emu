@@ -78,7 +78,10 @@ class TauTauAnalysis : public SCycleBase {
       kLepton,                  // C3
       kOtherLepton,             // C4
       kLepLep,                  // C5
-      kBeforeCutsWeighted,      // C6
+      kBeforeCutsUnweighted,    // C6
+      kNo0PUUnweighted,         // C7
+      kBeforeCutsWeighted,      // C8
+      kNo0PUWeighted,           // C9
       kNumCuts                  // last!
     } SelectionCuts;
   
@@ -90,7 +93,10 @@ class TauTauAnalysis : public SCycleBase {
       "Lepton",                 // C3
       "OtherLepton",            // C4
       "LepLep",                 // C5
-      "BeforeCutsWeighted",     // C6
+      "BeforeCutsUnweighted",   // C6
+      "No0PUUnweighted",        // C7
+      "BeforeCutsWeighted",     // C8
+      "No0PUWeighted",          // C9
     };
     
     
@@ -413,6 +419,7 @@ class TauTauAnalysis : public SCycleBase {
     std::map<std::string,Int_t>   b_againstLepton_3;
     std::map<std::string,Float_t> b_byIsolationMVArun2v1DBoldDMwLTraw_3;
     std::map<std::string,Float_t> b_byIsolationMVArun2v1DBnewDMwLTraw_3;
+    std::map<std::string,Int_t>   b_byVLooseIsolationMVArun2v1DBoldDMwLT_3;
     std::map<std::string,Int_t>   b_byLooseIsolationMVArun2v1DBoldDMwLT_3;
     std::map<std::string,Int_t>   b_byMediumIsolationMVArun2v1DBoldDMwLT_3;
     std::map<std::string,Int_t>   b_byTightIsolationMVArun2v1DBoldDMwLT_3;
