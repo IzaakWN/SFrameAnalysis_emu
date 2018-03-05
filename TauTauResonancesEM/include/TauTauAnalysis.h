@@ -331,6 +331,8 @@ class TauTauAnalysis : public SCycleBase {
     std::map<std::string,Int_t>    b_ncjets20;
     std::map<std::string,Int_t>    b_nbtag20;
     std::map<std::string,Int_t>    b_ncbtag20;
+    std::map<std::string,Int_t>    b_ncbtag_noTau;
+    std::map<std::string,Int_t>    b_ncbtag20_noTau;
     
     std::map<std::string,Int_t>    b_njets_jesUp;
     std::map<std::string,Int_t>    b_njets_jesDown;

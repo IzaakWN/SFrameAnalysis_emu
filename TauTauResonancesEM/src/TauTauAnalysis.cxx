@@ -261,6 +261,8 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
     DeclareVariable( b_ncjets20[ch],            "ncjets20",             treeName);
     DeclareVariable( b_nbtag20[ch],             "nbtag20",              treeName);
     DeclareVariable( b_ncbtag20[ch],            "ncbtag20",             treeName);
+    DeclareVariable( b_ncbtag_noTau[ch],        "ncbtag_noTau",         treeName);
+    DeclareVariable( b_ncbtag20_noTau[ch],      "ncbtag20_noTau",       treeName);
     
     DeclareVariable( b_pt_1[ch],                "pt_1",                 treeName);
     DeclareVariable( b_eta_1[ch],               "eta_1",                treeName);
@@ -302,6 +304,7 @@ void TauTauAnalysis::BeginInputData( const SInputData& id ) throw( SError ) {
     DeclareVariable( b_byVTightIsolationMVArun2v1DBoldDMwLT_3[ch],        "byVTightIsolationMVArun2v1DBoldDMwLT_3",        treeName);
     DeclareVariable( b_byVVTightIsolationMVArun2v1DBoldDMwLT_3[ch],       "byVVTightIsolationMVArun2v1DBoldDMwLT_3",       treeName);
     DeclareVariable( b_byCombinedIsolationDeltaBetaCorrRaw3Hits_3[ch],    "byCombinedIsolationDeltaBetaCorrRaw3Hits_3",    treeName);
+    //DeclareVariable( b_byVLooseCombinedIsolationDeltaBetaCorr3Hits_3[ch], "byVLooseCombinedIsolationDeltaBetaCorr3Hits_3", treeName);
     DeclareVariable( b_byLooseCombinedIsolationDeltaBetaCorr3Hits_3[ch],  "byLooseCombinedIsolationDeltaBetaCorr3Hits_3",  treeName);
     DeclareVariable( b_byMediumCombinedIsolationDeltaBetaCorr3Hits_3[ch], "byMediumCombinedIsolationDeltaBetaCorr3Hits_3", treeName);
     DeclareVariable( b_byTightCombinedIsolationDeltaBetaCorr3Hits_3[ch],  "byTightCombinedIsolationDeltaBetaCorr3Hits_3",  treeName);
@@ -879,6 +882,7 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   
   float maxIso = -1.;
   int maxIndex = -1;
+  UZH::Tau tau;
   for(int i=0; i<(m_tau.N); ++i){
     UZH::Tau tau( &m_tau, i );
     if(tau.byIsolationMVArun2v1DBoldDMwLTraw()<maxIso) continue;
@@ -895,7 +899,7 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
     maxIso   = tau.byIsolationMVArun2v1DBoldDMwLTraw();
   }
   if(maxIndex>0){
-    UZH::Tau tau( &m_tau, maxIndex );
+    tau = UZH::Tau( &m_tau, maxIndex );
     b_pt_3[ch]                                          = tau.tlv().Pt();
     b_eta_3[ch]                                         = tau.tlv().Eta();
     b_decayMode_3[ch]                                   = tau.decayMode(); // 0, 1, 10
@@ -984,6 +988,26 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   float fmetphi_nom = met.phi();
   FillJetBranches( ch, Jets, met, electron_tlv, muon_tlv );
   
+  // remove overlapping taus
+  if(tau.pt()>20){
+    b_ncbtag_noTau[ch]   = 0;
+    b_ncbtag20_noTau[ch] = 0;
+    for( int ijet = 0; ijet < (int)Jets.size(); ++ijet ){
+      UZH::Jet jet = Jets.at(ijet);
+      //std::cout<<"overlap jet.DeltaR(tau) = "<<jet.DeltaR(tau)<<std::endl;
+      if(!jet.isTagged()) continue;
+      if(abs(jet.eta())>2.4) continue;
+      if(jet.DeltaR(tau)<0.5) continue;
+      if(jet.pt()<20) continue; //m_AK4jetPtCut
+      b_ncbtag20_noTau[ch]++;
+      if(jet.pt()<30)
+        b_ncbtag_noTau[ch]++;
+    }
+  }else{
+    b_ncbtag_noTau[ch]   = b_ncbtag[ch];
+    b_ncbtag20_noTau[ch] = b_ncbtag20[ch];
+  }
+  
   
   
   ///////////////
@@ -1050,9 +1074,6 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
     b_pfmt_1_UncEnUp[ch]   = TMath::Sqrt( 2*muon_tlv.Pt()*met_UncEnUp.Et()  *( 1-TMath::Cos(deltaPhi(muon_tlv.Phi(),met_UncEnUp.Phi()   ))));
     b_pfmt_1_UncEnDown[ch] = TMath::Sqrt( 2*muon_tlv.Pt()*met_UncEnDown.Et()*( 1-TMath::Cos(deltaPhi(muon_tlv.Phi(),met_UncEnDown.Phi() ))));
   }
-  
-  
-  
   
   
     
@@ -1176,6 +1197,9 @@ void TauTauAnalysis::FillJetBranches( const char* ch, std::vector<UZH::Jet>& Jet
       Float_t pt         = Jets.at(ijet).pt();
       TLorentzVector jet = Jets.at(ijet).tlv();
       bool isBTagged     = getBTagWeight_promote_demote(Jets.at(ijet));
+      //std::cout << " updating b tag from "<<Jets.at(ijet).isTagged()<<" to "<<isBTagged;
+      Jets.at(ijet).setTagged(isBTagged);
+      //std::cout << ": new save value is "<<Jets.at(ijet).isTagged() << std::endl;
       countJets( jet, ncjets_nom, nfjets_nom, ncbtag_nom, bjet_dphi_nom, jet2_dphi_nom, isBTagged );
       
       // smeared jet
@@ -1194,7 +1218,7 @@ void TauTauAnalysis::FillJetBranches( const char* ch, std::vector<UZH::Jet>& Jet
       }else{
         TLorentzVector jet_jer;
         if(doJEC){ // do SMEARING and SHIFTS
-        
+          
           // b tag weight before smearing  
           if(pt>m_AK4jetPtCut){
             b_weightbtag_             *= m_BTaggingScaleTool.getScaleFactor(Jets.at(ijet));
