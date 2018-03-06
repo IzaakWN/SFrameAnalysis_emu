@@ -7,29 +7,30 @@
 
 BTaggingScaleTool::BTaggingScaleTool( SCycleBase* parent, const char* name ) : 
   SToolBase( parent ), m_name( name ) {
-
+  
   SetLogName( name );
-
+  
   std::string sframe_dir = "$SFRAME_DIR"; //(std::getenv("SFRAME_DIR"));
-
+  
+  // https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
   CSV_WP.clear();
-  CSV_WP["Loose"]  = 0.5426;
-  CSV_WP["Medium"] = 0.8484;
-  CSV_WP["Tight"]  = 0.9535;
- 
+  CSV_WP["Loose"]  = 0.5803;
+  CSV_WP["Medium"] = 0.8838;
+  CSV_WP["Tight"]  = 0.9693;
+  
   currentWorkingPointCut = -1;
   m_effMaps.clear();
-
+  
   DeclareProperty( m_name + "_Tagger",       m_tagger = "CSVv2" );
   DeclareProperty( m_name + "_WorkingPoint", m_workingPoint = "Medium" );  
-  DeclareProperty( m_name + "_CsvFile",      m_csvFile = sframe_dir + "/../BTaggingTools/csv/CSVv2_Moriond17_B_H.csv" ); // subjet_CSVv2_ichep.csv
+  DeclareProperty( m_name + "_CsvFile",      m_csvFile = sframe_dir + "/../BTaggingTools/csv/CSVv2_94XSF_V1_B_F.csv" ); // subjet_CSVv2_ichep.csv
   
   DeclareProperty( m_name + "_MeasurementType_udsg", m_measurementType_udsg = "incl" ); 
   DeclareProperty( m_name + "_MeasurementType_bc",   m_measurementType_bc = "mujets" ); // for AK4 jets; for AK8 jets, use "lt"
   
   DeclareProperty( m_name + "_EffHistDirectory", m_effHistDirectory = "bTagEff" );
   DeclareProperty( m_name + "_EffFile",          m_effFile = sframe_dir + "/../BTaggingTools/efficiencies/bTagEffs_HTT_baseline.root" );
-
+  
 }
 
 
@@ -328,7 +329,7 @@ void BTaggingScaleTool::bookHistograms() {
   const int nEtaBins = 4;
   float ptBins[nPtBins+1] = {10, 20, 30, 50, 70, 100, 140, 200, 300, 670, 1000, 1500};
   float etaBins[nEtaBins+1] = {-2.5, -1.5, 0, 1.5, 2.5};
-  std::string directories[3] = {m_effHistDirectory, m_effHistDirectory+"_mutau", m_effHistDirectory+"_etau"};
+  std::string directories[2] = {m_effHistDirectory+"_emu", m_effHistDirectory+"_noTau"};
   
   for(const std::string &directory: directories){
     for(std::vector<TString>::const_iterator flav = m_flavours.begin(); flav != m_flavours.end(); ++flav){
