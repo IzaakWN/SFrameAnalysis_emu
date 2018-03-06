@@ -22,8 +22,8 @@ BTaggingScaleTool::BTaggingScaleTool( SCycleBase* parent, const char* name ) :
   m_effMaps.clear();
   
   DeclareProperty( m_name + "_Tagger",       m_tagger = "CSVv2" );
-  DeclareProperty( m_name + "_WorkingPoint", m_workingPoint = "Medium" );  
-  DeclareProperty( m_name + "_CsvFile",      m_csvFile = sframe_dir + "/../BTaggingTools/csv/CSVv2_94XSF_V1_B_F.csv" ); // subjet_CSVv2_ichep.csv
+  DeclareProperty( m_name + "_WorkingPoint", m_workingPoint = "Medium" );
+  DeclareProperty( m_name + "_CsvFile",      m_csvFile = sframe_dir + "/../BTaggingTools/csv/CSVv2_94XSF_V1_B_F.csv" );
   
   DeclareProperty( m_name + "_MeasurementType_udsg", m_measurementType_udsg = "incl" ); 
   DeclareProperty( m_name + "_MeasurementType_bc",   m_measurementType_bc = "mujets" ); // for AK4 jets; for AK8 jets, use "lt"
