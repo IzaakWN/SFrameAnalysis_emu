@@ -55,7 +55,7 @@ TauTauAnalysis::TauTauAnalysis() : SCycleBase(),
   
   DeclareProperty( "AK4JetPtCut",           m_AK4jetPtCut           = 20.               );
   DeclareProperty( "AK4JetEtaCut",          m_AK4jetEtaCut          = 4.7               );
-  DeclareProperty( "CSVWorkingPoint",       m_CSVWorkingPoint       = 0.8484            );
+  DeclareProperty( "CSVWorkingPoint",       m_CSVWorkingPoint       = 0.8838            );
   
   DeclareProperty( "ElectronPtCut",         m_electronPtCut         = 20.               );
   DeclareProperty( "ElectronEtaCut",        m_electronEtaCut        = 2.4               );
@@ -700,26 +700,19 @@ void TauTauAnalysis::ExecuteEvent( const SInputData&, Double_t ) throw( SError )
     
     // For Jets
     std::vector<UZH::Jet> goodJetsAK4;
-    for ( int i = 0; i < (m_jetAK4.N); ++i ) {
-      UZH::Jet myjetak4( &m_jetAK4, i );
+    for ( auto& jet: goodJetsAK4 ) {
       
-      Float_t dr_mj = deltaR(myjetak4.eta() - goodMuons[emu_pair[0].ilepton].eta(), 
-                      deltaPhi(myjetak4.phi(), goodMuons[emu_pair[0].ilepton].phi()));
-      if(dr_mj < 0.5) continue;
+      if(jet.DeltaR(goodMuons[emu_pair[0].ilepton]) < 0.5) continue;
+      if(jet.DeltaR(goodElectrons[emu_pair[0].olepton]) < 0.5) continue;
+      if(fabs(jet.eta()) > m_AK4jetEtaCut) continue;
+      if(jet.pt() < m_AK4jetPtCut) continue;
+      if(!LooseJetID(jet)) continue; // !jet.IDLoose()
       
-      Float_t dr_ej = deltaR(myjetak4.eta() - goodElectrons[emu_pair[0].olepton].eta(), 
-			     deltaPhi(myjetak4.phi(), goodElectrons[emu_pair[0].olepton].phi()));
-      if(dr_ej < 0.5) continue;
-      
-      if (fabs(myjetak4.eta()) > m_AK4jetEtaCut) continue;
-      if (myjetak4.pt() < m_AK4jetPtCut) continue;
-      if (!LooseJetID(myjetak4)) continue; // !myjetak4.IDLoose()
-      
-      goodJetsAK4.push_back(myjetak4);
+      goodJetsAK4.push_back(jet);
     }
     
     if(!m_isData and emu_pair[0].lep_iso<0.2 && emu_pair[0].olep_iso<0.15){
-      m_BTaggingScaleTool.fillEfficiencies(goodJetsAK4); // to measure b tag efficiencies for our selections
+      m_BTaggingScaleTool.fillEfficiencies(goodJetsAK4,"emu"); // to measure b tag efficiencies for our selections
     }
     
     FillBranches( "emu", goodMuons[emu_pair[0].ilepton], goodElectrons[emu_pair[0].olepton], goodJetsAK4, Met, PuppiMet );//, MvaMet);
@@ -820,6 +813,7 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   const char* ch = channel.c_str();
   if(m_doRecoilCorr || m_doZpt) setGenBosonTLVs(); // only for HTT, DY and WJ
   
+  b_channel[ch]     = 1;
   b_weight[ch]      = b_weight_;
   b_genweight[ch]   = b_genweight_;
   b_puweight[ch]    = b_puweight_;
@@ -860,7 +854,6 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   b_extraelec_veto[ch]      = b_extraelec_veto_;
   b_extramuon_veto[ch]      = b_extramuon_veto_;
   b_lepton_vetos[ch]        = ( b_dilepton_veto_ || b_extraelec_veto_ || b_extramuon_veto_ );
-  b_iso_cuts[ch]            = b_iso_1[ch]<0.2 && b_iso_2[ch]<0.15;
   
   b_pt_1[ch]                = muon.tlv().Pt();
   b_eta_1[ch]               = muon.tlv().Eta();
@@ -870,7 +863,8 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   b_d0_1[ch]                = muon.d0();
   b_dz_1[ch]                = muon.dz();
   b_iso_1[ch]               = muon.SemileptonicPFIso() / muon.pt();
-  b_channel[ch]             = 1;
+  
+  b_iso_cuts[ch]            = b_iso_1[ch]<0.2 && b_iso_2[ch]<0.15;
   TLorentzVector muon_tlv;
   muon_tlv.SetPtEtaPhiM(b_pt_1[ch], b_eta_1[ch], b_phi_1[ch], b_m_1[ch]);
   
@@ -937,6 +931,15 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
     b_byTightCombinedIsolationDeltaBetaCorr3Hits_3[ch]  = -1;
   }  
   
+  // measure b tagging efficiency
+  if(!m_isData and tau.pt()>20 and b_iso_1[ch]<0.2 && b_iso_2[ch]<0.15){
+    std::vector<UZH::Jet> Jets_noTau;
+    for( auto const& jet: Jets ){
+      if(jet.DeltaR(tau)<0.5) continue;
+      Jets_noTau.push_back(jet);
+    }
+    m_BTaggingScaleTool.fillEfficiencies(Jets_noTau,"noTau"); // to measure b tag efficiencies for our selections
+  }
   
   
   //////////////////
@@ -989,18 +992,17 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   FillJetBranches( ch, Jets, met, electron_tlv, muon_tlv );
   
   // remove overlapping taus
+  // TODO: check difference with counting in FillJetBranches !
   if(tau.pt()>20){
     b_ncbtag_noTau[ch]   = 0;
     b_ncbtag20_noTau[ch] = 0;
-    for( int ijet = 0; ijet < (int)Jets.size(); ++ijet ){
-      UZH::Jet jet = Jets.at(ijet);
-      //std::cout<<"overlap jet.DeltaR(tau) = "<<jet.DeltaR(tau)<<std::endl;
+    for( auto const& jet: Jets ){
       if(!jet.isTagged()) continue;
-      if(abs(jet.eta())>2.4) continue;
+      if(fabs(jet.eta())>2.4) continue;
       if(jet.DeltaR(tau)<0.5) continue;
       if(jet.pt()<20) continue; //m_AK4jetPtCut
       b_ncbtag20_noTau[ch]++;
-      if(jet.pt()<30)
+      if(jet.pt()>30)
         b_ncbtag_noTau[ch]++;
     }
   }else{
@@ -1269,7 +1271,7 @@ void TauTauAnalysis::FillJetBranches( const char* ch, std::vector<UZH::Jet>& Jet
           
           jet_jer = m_JetCorrectionTool.GetCorrectedJetJER(Jets.at(ijet),m_genJetAK4);
           pt = jet_jer.Pt();
-                    
+          
           // reorder pt
           if(pt > jet1.Pt()){
             if(jet1.Pt()<20){ // jet1 is unset
@@ -1297,6 +1299,7 @@ void TauTauAnalysis::FillJetBranches( const char* ch, std::vector<UZH::Jet>& Jet
       if     ( ijet == 0 ){ jet1_uo = jet; } // unordered
       else if( ijet == 1 ){ jet2_uo = jet; }
       ht += Jets.at(ijet).e();
+      //printRow({"   tau"},{ijet,isBTagged},{jet.Pt(),jet.Eta()});
       
       // count jets
       if(abseta < 2.4){             // CENTRAL 20 GeV
