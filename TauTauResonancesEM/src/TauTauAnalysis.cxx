@@ -700,14 +700,13 @@ void TauTauAnalysis::ExecuteEvent( const SInputData&, Double_t ) throw( SError )
     
     // For Jets
     std::vector<UZH::Jet> goodJetsAK4;
-    for ( auto& jet: goodJetsAK4 ) {
-      
+    for ( int i = 0; i < (m_jetAK4.N); i++ ) {
+      UZH::Jet jet( &m_jetAK4, i );
       if(jet.DeltaR(goodMuons[emu_pair[0].ilepton]) < 0.5) continue;
       if(jet.DeltaR(goodElectrons[emu_pair[0].olepton]) < 0.5) continue;
       if(fabs(jet.eta()) > m_AK4jetEtaCut) continue;
       if(jet.pt() < m_AK4jetPtCut) continue;
       if(!LooseJetID(jet)) continue; // !jet.IDLoose()
-      
       goodJetsAK4.push_back(jet);
     }
     
