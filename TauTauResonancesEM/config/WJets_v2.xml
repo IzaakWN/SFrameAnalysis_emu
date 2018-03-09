@@ -23,7 +23,7 @@
   <Package Name="SVFitTool.par" />
   
   <Cycle Name="TauTauAnalysis" OutputDirectory="./" PostFix="" ProofServer="lite" ProofWorkDir="" RunMode="LOCAL" TargetLumi="1.0">
-    <InputData Lumi="0.0" NEventsMax="-1" Type="WJets" Version="UZH" SkipValid="False">
+    <InputData Lumi="0.0" NEventsMax="100000" Type="WJets" Version="UZH" SkipValid="False">
 
 <In FileName="dcap://t3se01.psi.ch:22125//pnfs/psi.ch/cms/trivcat/store/user/cgalloni/Ntuple_2017_92v2_preliminary/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/180202_164413/0000/flatTuple_203.root" Lumi="1.0" />
 <In FileName="dcap://t3se01.psi.ch:22125//pnfs/psi.ch/cms/trivcat/store/user/cgalloni/Ntuple_2017_92v2_preliminary/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/180202_164413/0000/flatTuple_148.root" Lumi="1.0" />

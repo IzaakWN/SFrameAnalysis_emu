@@ -23,7 +23,7 @@
   <Package Name="SVFitTool.par" />
 
   <Cycle Name="TauTauAnalysis" OutputDirectory="./" PostFix="" ProofServer="lite" ProofWorkDir="" RunMode="LOCAL" TargetLumi="1.0">
-    <InputData Lumi="0.0" NEventsMax="100000" Type="SingleMuon_v2" Version="UZH" SkipValid="False">
+    <InputData Lumi="0.0" NEventsMax="300000" Type="SingleMuon_v2" Version="UZH" SkipValid="False">
 
 <In FileName="dcap://t3se01.psi.ch:22125//pnfs/psi.ch/cms/trivcat/store/user/cgalloni/Ntuple_2017_94v2_preliminary_v4/SingleMuon/SingleMuon_Run2017B-17Nov2017-v1/180126_090121/0000/flatTuple_1.root" Lumi="1.0" />
 <In FileName="dcap://t3se01.psi.ch:22125//pnfs/psi.ch/cms/trivcat/store/user/cgalloni/Ntuple_2017_94v2_preliminary_v4/SingleMuon/SingleMuon_Run2017B-17Nov2017-v1/180126_090121/0000/flatTuple_235.root" Lumi="1.0" />

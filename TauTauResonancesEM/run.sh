@@ -2,7 +2,7 @@
 
 FILES=(
   #DYJets_M-50_v2.xml
-  WJets_v2.xml
+  #WJets_v2.xml
   TTTo2L2Nu_v2.xml
   #SingleMuon_v2.xml
 )
