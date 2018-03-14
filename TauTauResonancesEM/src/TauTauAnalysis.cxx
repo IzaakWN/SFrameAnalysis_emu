@@ -170,7 +170,10 @@ struct ll_pair {
 
 
 void TauTauAnalysis::EndCycle() throw( SError ) {
-   std::cout << "events in ele_mu " <<e_mu <<std::endl;
+   m_logger << INFO << " " << SLogger::endmsg;
+   m_logger << INFO << "EndCycle" << SLogger::endmsg;
+   //std::cout << "events in ele_mu " <<e_mu <<std::endl;
+   m_logger << INFO << " " << SLogger::endmsg;
    return;
 }
 
@@ -710,9 +713,9 @@ void TauTauAnalysis::ExecuteEvent( const SInputData&, Double_t ) throw( SError )
       goodJetsAK4.push_back(jet);
     }
     
-    if(!m_isData and emu_pair[0].lep_iso<0.2 && emu_pair[0].olep_iso<0.15){
-      m_BTaggingScaleTool.fillEfficiencies(goodJetsAK4,"emu"); // to measure b tag efficiencies for our selections
-    }
+    //if(!m_isData and emu_pair[0].lep_iso<0.2 && emu_pair[0].olep_iso<0.15){
+    //  m_BTaggingScaleTool.fillEfficiencies(goodJetsAK4,"emu"); // to measure b tag efficiencies for our selections
+    //}
     
     FillBranches( "emu", goodMuons[emu_pair[0].ilepton], goodElectrons[emu_pair[0].olepton], goodJetsAK4, Met, PuppiMet );//, MvaMet);
     e_mu++;
@@ -838,14 +841,23 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   // MARK: Leptons //
   ///////////////////
   
-  b_pt_2[ch]                = electron.tlv().Pt();
-  b_eta_2[ch]               = electron.tlv().Eta();
-  b_phi_2[ch]               = electron.tlv().Phi();
-  b_m_2[ch]                 = electron.tlv().M();
+  b_pt_1[ch]                = muon.pt();
+  b_eta_1[ch]               = muon.eta();
+  b_phi_1[ch]               = muon.phi();
+  b_m_1[ch]                 = muon.m();
+  b_q_1[ch]                 = muon.charge();
+  b_d0_1[ch]                = muon.d0();
+  b_dz_1[ch]                = muon.dz();
+  b_iso_1[ch]               = muon.SemileptonicPFIso() / muon.pt();
+  
+  b_pt_2[ch]                = electron.pt();
+  b_eta_2[ch]               = electron.eta();
+  b_phi_2[ch]               = electron.phi();
+  b_m_2[ch]                 = electron.m();
   b_q_2[ch]                 = electron.charge();
   b_d0_2[ch]                = electron.d0();
   b_dz_2[ch]                = electron.dz();
-  b_iso_2[ch]               = electron.relIsoWithDBeta(); //electron.SemileptonicPFIso() / electron.tlv().Pt();
+  b_iso_2[ch]               = electron.relIsoWithDBeta(); //electron.SemileptonicPFIso() / electron.pt();
   
   b_id_e_mva_nt_loose_1[ch] = -1;
   extraLeptonVetos(channel, muon, electron);
@@ -853,15 +865,6 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   b_extraelec_veto[ch]      = b_extraelec_veto_;
   b_extramuon_veto[ch]      = b_extramuon_veto_;
   b_lepton_vetos[ch]        = ( b_dilepton_veto_ || b_extraelec_veto_ || b_extramuon_veto_ );
-  
-  b_pt_1[ch]                = muon.tlv().Pt();
-  b_eta_1[ch]               = muon.tlv().Eta();
-  b_phi_1[ch]               = muon.tlv().Phi();
-  b_m_1[ch]                 = muon.tlv().M();
-  b_q_1[ch]                 = muon.charge();
-  b_d0_1[ch]                = muon.d0();
-  b_dz_1[ch]                = muon.dz();
-  b_iso_1[ch]               = muon.SemileptonicPFIso() / muon.pt();
   
   b_iso_cuts[ch]            = b_iso_1[ch]<0.2 && b_iso_2[ch]<0.15;
   TLorentzVector muon_tlv;
@@ -902,6 +905,7 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
     // TODO: againstLepton SFs!
     b_byIsolationMVArun2v1DBoldDMwLTraw_3[ch]           = tau.byIsolationMVArun2v1DBoldDMwLTraw();
     b_byIsolationMVArun2v1DBnewDMwLTraw_3[ch]           = tau.byIsolationMVArun2v1DBnewDMwLTraw();
+    b_byVLooseIsolationMVArun2v1DBoldDMwLT_3[ch]        = tau.byVLooseIsolationMVArun2v1DBoldDMwLT();
     b_byLooseIsolationMVArun2v1DBoldDMwLT_3[ch]         = tau.byLooseIsolationMVArun2v1DBoldDMwLT();
     b_byMediumIsolationMVArun2v1DBoldDMwLT_3[ch]        = tau.byMediumIsolationMVArun2v1DBoldDMwLT();
     b_byTightIsolationMVArun2v1DBoldDMwLT_3[ch]         = tau.byTightIsolationMVArun2v1DBoldDMwLT();
@@ -937,7 +941,7 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
       if(jet.DeltaR(tau)<0.5) continue;
       Jets_noTau.push_back(jet);
     }
-    m_BTaggingScaleTool.fillEfficiencies(Jets_noTau,"noTau"); // to measure b tag efficiencies for our selections
+    //m_BTaggingScaleTool.fillEfficiencies(Jets_noTau,"noTau"); // to measure b tag efficiencies for our selections
   }
   
   
@@ -1077,7 +1081,7 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   }
   
   
-    
+  
   ///////////////////
   // MARK: Weights //
   ///////////////////
@@ -1093,18 +1097,17 @@ void TauTauAnalysis::FillBranches(const std::string& channel,
   b_gen_match_1[ch]         = -1;
   b_gen_match_2[ch]         = -1;
   
-  if (m_isData) b_gen_match_1[ch]   = -1;
+  if (m_isData) b_gen_match_1[ch] = -1;
   else{
-    b_gen_match_1[ch]               = genMatch(b_eta_1[ch], b_phi_1[ch]);
-    b_gen_match_2[ch]               = genMatch(b_eta_2[ch], b_phi_2[ch]);
-    //b_trigweight_1[ch]              = m_ScaleFactorTool.get_ScaleFactor_EleMuTrig(b_pt_2[ch], fabs(b_eta_2[ch]), muon_tlv.Pt(),fabs(muon_tlv.Eta()), m_trigger_Flags);
-    //b_trigweight_or_1[ch]           = m_ScaleFactorTool.get_ScaleFactor_EleMuTrig_OR(b_pt_2[ch], fabs(b_eta_2[ch]), muon_tlv.Pt(),fabs(muon_tlv.Eta()));
-    //b_idisoweight_1[ch]             = m_ScaleFactorTool.get_ScaleFactor_MuIdIso(muon_tlv.Pt(),fabs(muon_tlv.Eta()));
-    //b_idisoweight_2[ch]             = m_ScaleFactorTool.get_ScaleFactor_EleIdIso(b_pt_2[ch], fabs(b_eta_2[ch]));
-    if(m_doZpt)  b_zptweight[ch]    = m_RecoilCorrector.ZptWeight( boson_tlv.M(), boson_tlv.Pt() );
-    if(m_doTTpt) b_ttptweight[ch]   = genMatchSF(channel, -36); // 6*-6 = -36
-    b_weightbtag[ch]                = b_weightbtag_; // do not apply b tag weight when using promote-demote method !!!
-    //b_weightbtag[ch]                = m_BTaggingScaleTool.getScaleFactor_veto(Jets); // getScaleFactor_veto for AK4, getScaleFactor for AK8
+    b_gen_match_1[ch]             = genMatch(b_eta_1[ch], b_phi_1[ch]);
+    b_gen_match_2[ch]             = genMatch(b_eta_2[ch], b_phi_2[ch]);
+    b_trigweight_1[ch]            = m_ScaleFactorTool.get_ScaleFactor_Mu27Trig( b_pt_1[ch],b_eta_1[ch] );
+    b_idisoweight_1[ch]           = m_ScaleFactorTool.get_ScaleFactor_MuIdIso(  b_pt_1[ch],b_eta_1[ch] );
+    b_idisoweight_2[ch]           = m_ScaleFactorTool.get_ScaleFactor_EleIdIso( b_pt_2[ch],b_eta_2[ch] );
+    if(m_doZpt)  b_zptweight[ch]  = m_RecoilCorrector.ZptWeight( boson_tlv.M(), boson_tlv.Pt() );
+    if(m_doTTpt) b_ttptweight[ch] = genMatchSF(channel, -36); // 6*-6 = -36
+    b_weightbtag[ch]              = b_weightbtag_; // do not apply b tag weight when using promote-demote method !!!
+    //b_weightbtag[ch]            = m_BTaggingScaleTool.getScaleFactor_veto(Jets); // getScaleFactor_veto for AK4, getScaleFactor for AK8
     b_weight[ch] *= b_idisoweight_1[ch] * b_trigweight_2[ch] * b_idisoweight_2[ch] * b_zptweight[ch] * b_ttptweight[ch]; // * b_weightbtag[ch]
   }
   
@@ -1842,7 +1845,7 @@ void TauTauAnalysis::extraLeptonVetos(const std::string& channel, const UZH::Muo
 
 
 
-bool TauTauAnalysis::getBTagWeight_promote_demote( const UZH::Jet& jet ) {
+bool TauTauAnalysis::getBTagWeight_promote_demote( UZH::Jet& jet ) {
   //std::cout << "getBTagSF_promote_demote" << std::endl;
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#B_tag_scale_factors
   // example: https://github.com/rappoccio/usercode/blob/Dev_53x/EDSHyFT/plugins/BTagSFUtil_tprime.h
@@ -1855,16 +1858,13 @@ bool TauTauAnalysis::getBTagWeight_promote_demote( const UZH::Jet& jet ) {
   bool isBTagged = (jet.csv() > m_CSVWorkingPoint);
   if (m_isData) return isBTagged;
   
-  //if (isBTagged) std::cout << "Jet b tagged" << std::endl;
-  //else           std::cout << "Jet b not tagged" << std::endl;
+  //std::cout << "Jet b tagged:" << isBTagged << " -> ";
   
   TRandom3* generator = new TRandom3( (int) ((jet.eta()+5)*100000) );
   double rand = generator->Uniform(1.);
   
   double BTag_SF  = m_BTaggingScaleTool.getScaleFactor_noWeight(jet);
   double BTag_eff = m_BTaggingScaleTool.getEfficiency(jet,"jet_ak4");
-  double BTag_SFweight  = m_BTaggingScaleTool.getScaleFactor(jet);
-  b_weightbtag_ *= BTag_SFweight;
   
   if (BTag_SF == 1) return isBTagged; // no correction
   else if(BTag_SF > 1){
@@ -1872,10 +1872,13 @@ bool TauTauAnalysis::getBTagWeight_promote_demote( const UZH::Jet& jet ) {
     float mistagPercentage = (1.0 - BTag_SF) / (1.0 - (1.0/BTag_eff)); // fraction of jets to be promoted
     if( rand < mistagPercentage ) isBTagged = true; // PROMOTE
   }
-  else{//(BTag_SF < 1)
+  else{
     if(!isBTagged) return isBTagged;
     if( rand < 1 - BTag_SF ) isBTagged = false; // DEMOTE: 1-SF fraction of jets to be demoted
   }
   
+  jet.setTagged(isBTagged);
   return isBTagged;
 }
+
+
